@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import { useUser, SignInButton, SignOutButton } from '@clerk/nextjs';
 
 export default function Header({ onSearch, onCategoryChange, activeCategory }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const { isSignedIn, user } = useUser();
   const categories = ['All', 'Products', 'Services', 'Events'];
 
   const handleSearch = (e) => {
@@ -30,10 +32,19 @@ export default function Header({ onSearch, onCategoryChange, activeCategory }) {
             <Link href="/pricing" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Pricing</Link>
             <Link href="/about" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">About</Link>
             <Link href="/contact" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Contact</Link>
-            <button onClick={() => setShowSubmitModal(true)} className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Submit Ad</button>
-            <button className="btn-primary text-sm py-2 px-4">
-              Sign In
-            </button>
+            <span onClick={() => {}} className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors cursor-pointer">Submit Ad</span>
+            {isSignedIn ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-surface-600">{user?.firstName || 'User'}</span>
+                <SignOutButton>
+                  <button className="btn-secondary text-sm py-2 px-4">Sign Out</button>
+                </SignOutButton>
+              </div>
+            ) : (
+              <SignInButton mode="modal">
+                <button className="btn-primary text-sm py-2 px-4">Sign In</button>
+              </SignInButton>
+            )}
           </nav>
 
           {/* Mobile menu button */}
