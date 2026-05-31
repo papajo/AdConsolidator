@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Footer() {
   return (
     <footer className="border-t border-surface-200/50 mt-16">
@@ -20,10 +22,10 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-surface-800 text-sm mb-3">Platform</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-sm text-surface-500 hover:text-brand-600 transition-colors">Browse Ads</a></li>
-              <li><a href="#" className="text-sm text-surface-500 hover:text-brand-600 transition-colors">Categories</a></li>
-              <li><a href="#" className="text-sm text-surface-500 hover:text-brand-600 transition-colors">Submit Ad</a></li>
-              <li><a href="#" className="text-sm text-surface-500 hover:text-brand-600 transition-colors">Pricing</a></li>
+              <li><Link href="/" className="text-sm text-surface-500 hover:text-brand-600 transition-colors">Browse Ads</Link></li>
+              <li><Link href="/pricing" className="text-sm text-surface-500 hover:text-brand-600 transition-colors">Pricing</Link></li>
+              <li><span className="text-sm text-surface-500 hover:text-brand-600 transition-colors cursor-pointer">Submit Ad</span></li>
+              <li><Link href="/pricing" className="text-sm text-surface-500 hover:text-brand-600 transition-colors">Plans</Link></li>
             </ul>
           </div>
 
