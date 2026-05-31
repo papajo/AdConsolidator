@@ -64,6 +64,7 @@ create table if not exists public.ads (
   category text,
   category_id integer references public.categories(id),
   image_url text,
+  image_urls text[],
   price numeric,
   status text default 'active',
   views integer default 0,

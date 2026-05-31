@@ -7,6 +7,34 @@ import Footer from '../../components/Footer';
 const CATEGORIES = ['Products', 'Services', 'Events'];
 const LOCATIONS = ['Global', 'North America', 'Europe', 'Asia Pacific', 'Online'];
 
+// Compress image: resize to max 1200px, quality 0.7
+async function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX = 1200;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round((h / w) * MAX); w = MAX; }
+          else { w = Math.round((w / h) * MAX); h = MAX; }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function SubmitAd() {
   const { isSignedIn, user } = useUser();
   const [step, setStep] = useState(1);
@@ -64,12 +92,7 @@ export default function SubmitAd() {
       }
 
       try {
-        const base64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
+        const base64 = await compressImage(file);
 
         const res = await fetch('/api/upload', {
           method: 'POST',
@@ -111,7 +134,8 @@ export default function SubmitAd() {
       contact_phone: form.contactPhone || null,
       contact_website: form.website || null,
       tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
-      images: form.images.map(img => img.url),
+      image_url: form.images[0]?.url || null,
+      image_urls: form.images.map(img => img.url),
       user_id: user?.id,
       status: 'pending',
     };
