@@ -1,19 +1,31 @@
-import { getAds } from '../../lib/data';
+import { getAds, getFeaturedAds, getStats } from '../../lib/data';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { q, category, sort, page, limit } = req.query;
+  const featured = req.query.featured === 'true';
 
-  const result = getAds({
-    query: q || '',
-    category: category || 'All',
-    sort: sort || 'default',
-    page: parseInt(page) || 1,
-    limit: parseInt(limit) || 9,
-  });
+  try {
+    if (featured) {
+      const ads = await getFeaturedAds();
+      return res.status(200).json({ ads });
+    }
 
-  res.status(200).json(result);
+    const { q, category, sort, page, limit } = req.query;
+
+    const result = await getAds({
+      search: q || '',
+      category: category || 'All',
+      sort: sort || 'default',
+      page: parseInt(page) || 1,
+      limit: parseInt(limit) || 12,
+    });
+
+    res.status(200).json(result);
+  } catch (err) {
+    console.error('API /api/ads error:', err);
+    res.status(500).json({ ads: [], total: 0 });
+  }
 }
