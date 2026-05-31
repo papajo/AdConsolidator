@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function Header({ onSearch, onCategoryChange, activeCategory }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,7 +27,7 @@ export default function Header({ onSearch, onCategoryChange, activeCategory }) {
 
           <nav className="hidden md:flex items-center gap-6">
             <a href="#" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Browse</a>
-            <a href="#" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Categories</a>
+            <Link href="/pricing" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Pricing</Link>
             <a href="#" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Submit Ad</a>
             <button className="btn-primary text-sm py-2 px-4">
               Sign In
