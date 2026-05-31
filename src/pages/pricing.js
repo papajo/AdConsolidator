@@ -1,17 +1,19 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import Script from 'next/script';
+import { useRef, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 function StripePricingTable({ id, publishableKey }) {
-  return (
-    <div
-      dangerouslySetInnerHTML={{
-        __html: `<stripe-pricing-table pricing-table-id="${id}" publishable-key="${publishableKey}"></stripe-pricing-table>`,
-      }}
-    />
-  );
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current && !ref.current.querySelector('stripe-pricing-table')) {
+      ref.current.innerHTML = `<stripe-pricing-table pricing-table-id="${id}" publishable-key="${publishableKey}"></stripe-pricing-table>`;
+    }
+  }, [id, publishableKey]);
+
+  return <div ref={ref} />;
 }
 
 export default function Pricing() {
@@ -111,8 +113,8 @@ export default function Pricing() {
 
         <Footer />
 
-        {/* Stripe Pricing Table Script */}
-        <Script async src="https://js.stripe.com/v3/pricing-table.js" strategy="lazyOnload" />
+        {/* Stripe Pricing Table Script - load before React renders */}
+        <Script src="https://js.stripe.com/v3/pricing-table.js" strategy="beforeInteractive" />
       </div>
     </>
   );
