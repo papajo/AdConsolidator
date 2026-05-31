@@ -63,6 +63,20 @@ export default function AdDetail({ ad, reviews, onClose }) {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main content */}
             <div className="lg:col-span-2 space-y-6">
+              {/* Image gallery */}
+              {ad.images?.length > 0 && (
+                <div className="grid grid-cols-2 gap-3">
+                  {ad.images.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt={`${ad.title} - image ${idx + 1}`}
+                      className="w-full rounded-xl object-cover h-48"
+                    />
+                  ))}
+                </div>
+              )}
+
               {/* Description */}
               <div>
                 <h3 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-2">Description</h3>
