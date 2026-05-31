@@ -37,6 +37,11 @@ export default function SignInPage() {
             <p className="text-center text-sm text-surface-500 mt-6">
               Don't have an account? <a href="/sign-up" className="text-brand-600 hover:text-brand-700 font-medium">Create one</a>
             </p>
+            <p className="text-center mt-3">
+              <a href="/sign-in" className="text-xs text-surface-400 hover:text-brand-600" onClick={(e) => { e.preventDefault(); window.location.href = 'https://dashboard.clerk.com/last-active'; }}>
+                Forgot password? Reset here →
+              </a>
+            </p>
           </div>
         </main>
 
