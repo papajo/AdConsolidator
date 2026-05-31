@@ -89,8 +89,16 @@ export async function getAds(filters = {}) {
     .eq('status', 'approved');
 
   if (filters.category && filters.category !== 'All') {
-    const { data: cat } = await supabaseAdmin.from('categories').select('id').eq('slug', filters.category.toLowerCase()).single();
-    if (cat) query = query.eq('category_id', cat.id);
+    // Try categories table first, fall back to category_id mapping
+    const { data: cat } = await supabaseAdmin.from('categories').select('id').eq('name', filters.category).maybeSingle();
+    if (cat) {
+      query = query.eq('category_id', cat.id);
+    } else {
+      // Map category name to category_id
+      const map = { Products: 1, Services: 2, Events: 3 };
+      const catId = map[filters.category];
+      if (catId) query = query.eq('category_id', catId);
+    }
   }
   if (filters.search) {
     query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);

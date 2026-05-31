@@ -53,3 +53,49 @@ create policy "Users manage own ads"
 create trigger ads_updated_at
   before update on public.ads
   for each row execute function public.handle_updated_at();
+
+-- Categories table (for category filtering)
+create table if not exists public.categories (
+  id serial primary key,
+  name text not null,
+  slug text not null unique,
+  ad_count integer default 0,
+  created_at timestamptz default now()
+);
+
+alter table public.categories enable row level security;
+
+create policy "Categories are public readable"
+  on public.categories for select using (true);
+
+insert into public.categories (name, slug) values
+  ('Products', 'products'),
+  ('Services', 'services'),
+  ('Events', 'events')
+on conflict (slug) do nothing;
+
+create trigger categories_updated_at
+  before update on public.categories
+  for each row execute function public.handle_updated_at();
+
+-- Storage: create "ad-images" bucket manually in Supabase Dashboard → Storage, then run:
+-- CREATE POLICY "Public uploads" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'ad-images');
+-- CREATE POLICY "Public read" ON storage.objects FOR SELECT USING (bucket_id = 'ad-images');
+-- CREATE POLICY "Service role full access" ON storage.objects FOR ALL USING (auth.role() = 'service_role');
+
+-- Contact messages table
+create table if not exists public.contact_messages (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  subject text not null,
+  message text not null,
+  status text default 'new',
+  created_at timestamptz default now()
+);
+
+alter table public.contact_messages enable row level security;
+
+create policy "Service role manages messages"
+  on public.contact_messages for all
+  using (auth.role() = 'service_role');

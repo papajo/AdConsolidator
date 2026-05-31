@@ -7,6 +7,12 @@
   "functions": {
     "src/pages/api/**/*.js": {
       "maxDuration": 10
+    },
+    "src/pages/api/upload/index.js": {
+      "maxDuration": 30
+    },
+    "src/pages/api/contact.js": {
+      "maxDuration": 15
     }
   }
 }
