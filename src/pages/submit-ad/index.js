@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import { useUser } from '@clerk/nextjs';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
 const CATEGORIES = ['Products', 'Services', 'Events'];
 const LOCATIONS = ['Global', 'North America', 'Europe', 'Asia Pacific', 'Online'];
