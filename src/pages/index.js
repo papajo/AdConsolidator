@@ -24,9 +24,8 @@ export default function HomePage({ initialAds, initialStats }) {
 
   const fetchAds = useCallback(async (query, category, sort) => {
     setIsLoading(true);
-    // Simulate network delay for realism
     await new Promise(resolve => setTimeout(resolve, 300));
-    const result = getAds({ query, category, sort });
+    const result = await getAds({ query, category, sort });
     setAds(result.ads);
     setTotalAds(result.total);
     setIsLoading(false);
@@ -44,9 +43,9 @@ export default function HomePage({ initialAds, initialStats }) {
     setActiveCategory(category);
   };
 
-  const handleAdClick = (ad) => {
-    const fullAd = getAdById(ad.id);
-    const reviews = getReviewsByAdId(ad.id);
+  const handleAdClick = async (ad) => {
+    const fullAd = await getAdById(ad.id);
+    const reviews = await getReviewsByAdId(ad.id);
     setSelectedAd(fullAd);
     setSelectedAdReviews(reviews);
   };
@@ -189,8 +188,8 @@ export default function HomePage({ initialAds, initialStats }) {
 }
 
 export async function getServerSideProps() {
-  const initialAds = getAds({ query: '', category: 'All', sort: 'default' });
-  const initialStats = getStats();
+  const initialAds = await getAds({ query: '', category: 'All', sort: 'default' });
+  const initialStats = await getStats();
 
   return {
     props: {
