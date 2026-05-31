@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Script from 'next/script';
+import Link from 'next/link';
 import { useRef, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
