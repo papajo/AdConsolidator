@@ -14,13 +14,3 @@ export const supabaseAdmin = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseServiceKey || supabaseAnonKey || 'placeholder'
 );
-
-export async function getUserFromRequest(req) {
-  try {
-    const { getAuth } = await import('@clerk/nextjs/server');
-    const { userId } = await getAuth(req);
-    return userId;
-  } catch {
-    return null;
-  }
-}
