@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = createClient(
@@ -44,7 +45,7 @@ export async function POST(req) {
 }
 
 function verifySvixSignature(svixId, svixTimestamp, body, svixSignature, secret) {
-  const crypto = await import('crypto');
+  
   const signingSecret = secret.startsWith('whsec_') ? secret.replace('whsec_', '') : secret;
   const key = Buffer.from(signingSecret, 'base64');
   const payload = `${svixId}.${svixTimestamp}.${body}`;
