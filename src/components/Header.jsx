@@ -26,9 +26,11 @@ export default function Header({ onSearch, onCategoryChange, activeCategory }) {
           </div>
 
           <nav className="hidden md:flex items-center gap-6">
-            <a href="#" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Browse</a>
+            <Link href="/" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Browse</Link>
             <Link href="/pricing" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Pricing</Link>
-            <a href="#" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Submit Ad</a>
+            <Link href="/about" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">About</Link>
+            <Link href="/contact" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Contact</Link>
+            <button onClick={() => setShowSubmitModal(true)} className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Submit Ad</button>
             <button className="btn-primary text-sm py-2 px-4">
               Sign In
             </button>
