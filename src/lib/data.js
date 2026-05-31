@@ -1,5 +1,28 @@
 import { supabase, supabaseAdmin } from './supabase';
 
+// Map Clerk user IDs (user_xxx) → Supabase profile UUIDs
+const clerkIdCache = new Map();
+
+async function resolveProfileId(clerkId) {
+  if (!clerkId) return null;
+  if (clerkIdCache.has(clerkId)) return clerkIdCache.get(clerkId);
+
+  const { data } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('clerk_id', clerkId)
+    .single();
+
+  if (data?.id) {
+    clerkIdCache.set(clerkId, data.id);
+    return data.id;
+  }
+  return null;
+}
+
+// Clear cache (useful after webhook syncs a new user)
+export function clearProfileCache() { clerkIdCache.clear(); }
+
 // ============================================
 // Data layer — Supabase-backed with mock fallback
 // ============================================
@@ -116,7 +139,7 @@ export async function getAds(filters = {}) {
   query = query.range(from, to);
 
   const { data, error, count } = await query;
-  if (error) { console.error('Supabase getAds error:', error); return { ads: [], total: 0, page, totalPages: 0 }; }
+  if (error) { console.error('Supabase getAds error:', JSON.stringify(error)); return { ads: [], total: 0, page, totalPages: 0 }; }
   return { ads: data || [], total: count || 0, page, totalPages: Math.ceil((count || 0) / limit) };
 }
 
@@ -220,23 +243,35 @@ export async function createAd(adData) {
     return { data: newAd, success: true };
   }
 
+  // Resolve Clerk ID → Supabase profile UUID
+  let profileId = adData.user_id;
+  if (profileId && typeof profileId === 'string' && profileId.startsWith('user_')) {
+    profileId = await resolveProfileId(profileId);
+  }
+
   const { data, error } = await supabaseAdmin
     .from('ads')
-    .insert(adData)
+    .insert({ ...adData, user_id: profileId })
     .select()
     .single();
 
-  if (error) { console.error('Supabase createAd error:', error); return { error }; }
+  if (error) { console.error('Supabase createAd error:', JSON.stringify(error)); return { error }; }
   return { data, success: true };
 }
 
 export async function getUserAds(userId) {
   if (!isSupabaseConfigured()) return MOCK_ADS.filter(a => a.user_id === userId);
 
+  // Resolve Clerk ID → Supabase profile UUID
+  let profileId = userId;
+  if (typeof userId === 'string' && userId.startsWith('user_')) {
+    profileId = await resolveProfileId(userId);
+  }
+
   const { data, error } = await supabaseAdmin
     .from('ads')
     .select('*, categories(name, slug)')
-    .eq('user_id', userId)
+    .eq('user_id', profileId)
     .order('created_at', { ascending: false });
 
   if (error) return [];

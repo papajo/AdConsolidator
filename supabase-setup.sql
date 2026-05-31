@@ -1,12 +1,12 @@
 -- Supabase setup for XYZT Ad Consolidator
--- Run this entire script in Supabase Dashboard → SQL Editor
--- Safe to re-run — uses IF NOT EXISTS and DROP POLICY IF EXISTS
+-- Creates its own UUID for profiles; Clerk user ID stored in clerk_id (TEXT)
 
 -- ============================================
--- Profiles table (synced from Clerk via webhook)
+-- Profiles (synced from Clerk webhook)
 -- ============================================
 create table if not exists public.profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
+  id uuid primary key default gen_random_uuid(),
+  clerk_id text unique not null,
   email text unique,
   first_name text,
   last_name text,
@@ -20,18 +20,18 @@ alter table public.profiles enable row level security;
 
 drop policy if exists "Users view own profile" on public.profiles;
 create policy "Users view own profile"
-  on public.profiles for select using (auth.uid() = id);
+  on public.profiles for select using (true);
 
 drop policy if exists "Users update own profile" on public.profiles;
 create policy "Users update own profile"
-  on public.profiles for update using (auth.uid() = id);
+  on public.profiles for update using (true);
 
 drop policy if exists "Service role manages profiles" on public.profiles;
 create policy "Service role manages profiles"
   on public.profiles for all using (auth.role() = 'service_role');
 
 -- ============================================
--- Categories table
+-- Categories
 -- ============================================
 create table if not exists public.categories (
   id serial primary key,
@@ -54,11 +54,11 @@ insert into public.categories (name, slug) values
 on conflict (slug) do nothing;
 
 -- ============================================
--- Ads table
+-- Ads
 -- ============================================
 create table if not exists public.ads (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid references public.profiles(id) on delete cascade,
+  user_id uuid references public.profiles(id) on delete set null,
   title text not null,
   description text,
   category text,
@@ -79,16 +79,20 @@ create table if not exists public.ads (
 
 alter table public.ads enable row level security;
 
-drop policy if exists "Anyone view active ads" on public.ads;
-create policy "Anyone view active ads"
-  on public.ads for select using (status = 'active');
+drop policy if exists "Anyone can browse ads" on public.ads;
+create policy "Anyone can browse ads"
+  on public.ads for select using (true);
+
+drop policy if exists "Anyone can insert ads" on public.ads;
+create policy "Anyone can insert ads"
+  on public.ads for insert with check (true);
 
 drop policy if exists "Users manage own ads" on public.ads;
 create policy "Users manage own ads"
-  on public.ads for all using (auth.uid() = user_id);
+  on public.ads for all using (true);
 
 -- ============================================
--- Contact messages table
+-- Contact messages
 -- ============================================
 create table if not exists public.contact_messages (
   id uuid primary key default gen_random_uuid(),
@@ -107,7 +111,7 @@ create policy "Service role manages messages"
   on public.contact_messages for all using (auth.role() = 'service_role');
 
 -- ============================================
--- Reviews table
+-- Reviews
 -- ============================================
 create table if not exists public.reviews (
   id uuid primary key default gen_random_uuid(),
@@ -128,14 +132,14 @@ create policy "Anyone view reviews"
 
 drop policy if exists "Users create reviews" on public.reviews;
 create policy "Users create reviews"
-  on public.reviews for insert with check (auth.uid() = user_id);
+  on public.reviews for insert with check (true);
 
 drop policy if exists "Users update own reviews" on public.reviews;
 create policy "Users update own reviews"
-  on public.reviews for update using (auth.uid() = user_id);
+  on public.reviews for update using (true);
 
 -- ============================================
--- Timestamps trigger
+-- Auto-update timestamps
 -- ============================================
 create or replace function public.handle_updated_at()
 returns trigger as $$
@@ -152,10 +156,11 @@ drop trigger if exists reviews_updated_at on public.reviews;
 create trigger reviews_updated_at before update on public.reviews for each row execute function public.handle_updated_at();
 
 -- ============================================
--- Storage bucket (manual step in Supabase → Storage)
+-- Storage bucket for ad images
 -- ============================================
--- 1. Go to Supabase Dashboard → Storage → New bucket → name: "ad-images", Public: ON
--- 2. Then run these 3 policies:
+-- In Supabase Dashboard → Storage → New bucket:
+--   Name: ad-images | Public: ON
+-- Then run these 3 policies:
 --
 -- CREATE POLICY "Public uploads" ON storage.objects FOR INSERT
 --   WITH CHECK (bucket_id = 'ad-images');

@@ -152,7 +152,7 @@ export default function SubmitAd() {
             <p className="text-surface-500 mb-2">Your ad is pending review. We'll notify you once it's approved.</p>
             <p className="text-xs text-surface-400 mb-8">Estimated review time: 24 hours</p>
             <div className="flex gap-3 justify-center">
-              <a href="/dashboard" className="btn-primary">Go to Dashboard</a>
+              <a href="/me/ads" className="btn-primary">Go to Dashboard</a>
               <button onClick={() => { setStep(1); setSubmitted(false); setForm({ title: '', category: '', location: '', price: '', description: '', contactName: '', contactEmail: '', contactPhone: '', website: '', tags: '' }); }} className="btn-secondary">Submit Another</button>
             </div>
           </div>

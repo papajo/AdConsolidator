@@ -6,7 +6,7 @@ import Footer from '../../components/Footer';
 
 export default function Dashboard() {
   const { isSignedIn, user, isLoaded } = useUser();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('my-ads');
 
   if (!isLoaded) {
     return (
@@ -202,7 +202,7 @@ export default function Dashboard() {
                   <div className="glass-card rounded-3xl p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-display text-lg text-surface-900">My Advertisements</h3>
-                      <button className="btn-primary text-sm py-2 px-4">+ New Ad</button>
+                      <a href="/submit-ad" className="btn-primary text-sm py-2 px-4">+ New Ad</a>
                     </div>
                     <div className="space-y-3">
                       {myAds.map(ad => (

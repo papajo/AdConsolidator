@@ -35,6 +35,7 @@ export default function Header({ onSearch, onCategoryChange, activeCategory }) {
             <Link href="/submit-ad" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Submit Ad</Link>
             {isSignedIn ? (
               <div className="flex items-center gap-3">
+                <Link href="/me/ads" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">My Ads</Link>
                 <span className="text-sm text-surface-600">{user?.firstName || 'User'}</span>
                 <SignOutButton>
                   <button className="btn-secondary text-sm py-2 px-4">Sign Out</button>
