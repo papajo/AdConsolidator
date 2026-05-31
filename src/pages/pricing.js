@@ -1,9 +1,33 @@
+import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 export default function Pricing() {
+  const [loading, setLoading] = useState(null);
+
+  const handleCheckout = async (plan) => {
+    setLoading(plan);
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Checkout failed. Please try again.');
+        setLoading(null);
+      }
+    } catch (err) {
+      alert('Something went wrong. Please try again.');
+      setLoading(null);
+    }
+  };
+
   const plans = [
     {
       name: 'Starter',
@@ -130,13 +154,21 @@ export default function Pricing() {
                   </div>
 
                   <button
-                    className={`w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-[0.98] ${
+                    onClick={() => {
+                      if (plan.price === '$0') {
+                        window.location.href = '/sign-up';
+                      } else {
+                        handleCheckout(plan.name.toLowerCase());
+                      }
+                    }}
+                    disabled={loading === plan.name.toLowerCase()}
+                    className={`w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-60 ${
                       plan.popular
                         ? 'btn-primary'
                         : 'btn-secondary'
                     }`}
                   >
-                    {plan.cta}
+                    {loading === plan.name.toLowerCase() ? 'Redirecting…' : plan.cta}
                   </button>
 
                   <ul className="mt-8 space-y-3">
@@ -231,8 +263,8 @@ export default function Pricing() {
                 Join thousands of advertisers and businesses on the XYZT platform. Start free today.
               </p>
               <div className="flex items-center justify-center gap-4">
-                <button className="px-8 py-3 bg-gradient-to-r from-brand-500 to-brand-400 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/25 hover:from-brand-600 hover:to-brand-500 active:scale-[0.98] transition-all duration-200">
-                  Start Free Trial
+                <button onClick={() => handleCheckout('pro')} className="px-8 py-3 bg-gradient-to-r from-brand-500 to-brand-400 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/25 hover:from-brand-600 hover:to-brand-500 active:scale-[0.98] transition-all duration-200">
+                  {loading === 'pro' ? 'Redirecting…' : 'Start Free Trial'}
                 </button>
                 <Link href="/" className="px-8 py-3 bg-white/10 text-white font-medium rounded-xl hover:bg-white/20 transition-all duration-200">
                   Browse Ads
