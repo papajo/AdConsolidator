@@ -4,19 +4,52 @@ A platform designed to gather, categorize, and present advertisements related to
 
 ## 🚀 Quick Start
 
+### Local Development
+
 ```bash
 # Install dependencies
 npm install
 
+# Copy environment file
+cp .env.example .env.local
+
+# Add your keys to .env.local (see below)
 # Run development server
 npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
 ```
+
+### Deploy to Vercel (1-Click)
+
+**Easiest method** — deploy with the Vercel button:
+
+1. Push this repo to your own GitHub account
+2. Go to [vercel.com/new](https://vercel.com/new)
+3. Import the repository
+4. Add environment variables (see below)
+5. Click **Deploy**
+
+**Required environment variables:**
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | From [clerk.com](https://clerk.com) |
+| `CLERK_SECRET_KEY` | From [clerk.com](https://clerk.com) |
+| `STRIPE_SECRET_KEY` | From [stripe.com](https://stripe.com) |
+| `STRIPE_PRICE_PRO` | Stripe Price ID for Pro plan |
+| `STRIPE_PRICE_BUSINESS` | Stripe Price ID for Business plan |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook secret |
+| `NEXT_PUBLIC_BASE_URL` | Your Vercel URL (e.g. https://yourapp.vercel.app) |
+| `NEXT_PUBLIC_SUPABASE_URL` | From [supabase.com](https://supabase.com) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | From Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | From Supabase |
+| `CLOUDINARY_CLOUD_NAME` | From [cloudinary.com](https://cloudinary.com) |
+| `CLOUDINARY_UPLOAD_PRESET` | Cloudinary unsigned upload preset |
+
+**Optional (for emails):**
+
+| Variable | Description |
+|----------|-------------|
+| `RESEND_API_KEY` | From [resend.com](https://resend.com) |
 
 ## 📁 Project Structure
 
@@ -25,30 +58,42 @@ xyzt-ad-consolidator/
 ├── src/
 │   ├── components/
 │   │   ├── Header.jsx          # Sticky header with search + category tabs
-│   │   ├── AdCard.jsx          # Ad listing card with animations
+│   │   ├── AdCard.jsx          # Ad listing card with image thumbnails
 │   │   ├── AdDetail.jsx        # Full ad detail modal with reviews
 │   │   ├── StatsBar.jsx        # Platform stats overview
-│   │   ├── SubmitAdModal.jsx   # New ad submission form
+│   │   ├── SubmitAdModal.jsx   # New ad submission modal
 │   │   ├── NotificationPanel.jsx # Alert subscription panel
 │   │   └── Footer.jsx          # Site footer with links
 │   ├── lib/
-│   │   ├── data.js             # Mock data store (replace with Supabase)
+│   │   ├── supabase.js         # Supabase client (browser + admin)
+│   │   ├── data.js             # Data layer — Supabase or mock fallback
 │   │   └── utils.js            # Formatting utilities
 │   ├── pages/
 │   │   ├── api/
-│   │   │   ├── ads.js          # GET /api/ads - search & filter
-│   │   │   ├── ads/[id].js     # GET /api/ads/:id - ad detail
-│   │   │   └── stats.js        # GET /api/stats - platform stats
-│   │   ├── _app.js             # App wrapper
-│   │   ├── _document.js        # HTML document
-│   │   └── index.js            # Homepage
+│   │   │   ├── ads.js          # GET/POST /api/ads
+│   │   │   ├── ads/[id].js     # GET /api/ads/:id
+│   │   │   ├── stats.js        # GET /api/stats
+│   │   │   ├── contact.js      # POST /api/contact
+│   │   │   ├── upload/index.js # POST /api/upload (Cloudinary)
+│   │   │   └── webhooks/stripe.js # POST /api/webhooks/stripe
+│   │   ├── _app.js             # App wrapper with ClerkProvider
+│   │   ├── index.js            # Homepage with search/filter
+│   │   ├── pricing.js          # Stripe Pricing Tables
+│   │   ├── submit-ad/index.js  # 3-step ad submission wizard
+│   │   ├── dashboard/index.js  # User dashboard (6 tabs)
+│   │   ├── sign-in/[[...sign-in]].js
+│   │   ├── sign-up/[[...sign-up]].js
+│   │   ├── about.js
+│   │   ├── contact.js
+│   │   └── legal/{terms,privacy,dmca,cookies}.js
 │   └── styles/
 │       └── globals.css         # Tailwind + custom styles
+├── supabase-schema.sql         # Database schema for Supabase
+├── vercel.json                 # Vercel deployment config
 ├── tailwind.config.js
-├── postcss.config.js
 ├── next.config.js
-├── jsconfig.json
-└── package.json
+├── package.json
+└── .env.example                # Environment variable template
 ```
 
 ## ✨ Features Implemented
