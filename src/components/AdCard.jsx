@@ -9,13 +9,27 @@ export default function AdCard({ ad, onClick, index }) {
       className="group glass-card rounded-2xl overflow-hidden hover-lift cursor-pointer opacity-0 animate-slide-up"
       style={{ animationDelay: `${delay}s`, animationFillMode: 'forwards' }}
     >
-      {/* Visual header strip */}
-      <div className={`h-2 w-full ${
-        ad.category === 'Products' ? 'bg-gradient-to-r from-emerald-400 to-teal-500' :
-        ad.category === 'Services' ? 'bg-gradient-to-r from-blue-400 to-indigo-500' :
-        ad.category === 'Events' ? 'bg-gradient-to-r from-purple-400 to-pink-500' :
-        'bg-gradient-to-r from-surface-300 to-surface-400'
-      }`} />
+      {/* Image thumbnail */}
+      {ad.images && ad.images.length > 0 && (
+        <div className="h-32 bg-surface-100 relative overflow-hidden">
+          <img src={ad.images[0]} alt={ad.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          {ad.images.length > 1 && (
+            <span className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
+              +{ad.images.length - 1}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Visual header strip (fallback when no image) */}
+      {!ad.images?.length && (
+        <div className={`h-2 w-full ${
+          ad.category === 'Products' ? 'bg-gradient-to-r from-emerald-400 to-teal-500' :
+          ad.category === 'Services' ? 'bg-gradient-to-r from-blue-400 to-indigo-500' :
+          ad.category === 'Events' ? 'bg-gradient-to-r from-purple-400 to-pink-500' :
+          'bg-gradient-to-r from-surface-300 to-surface-400'
+        }`} />
+      )}
 
       <div className="p-5">
         {/* Top meta */}
