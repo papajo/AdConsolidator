@@ -32,7 +32,7 @@ export default function Header({ onSearch, onCategoryChange, activeCategory }) {
             <Link href="/pricing" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Pricing</Link>
             <Link href="/about" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">About</Link>
             <Link href="/contact" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Contact</Link>
-            <span onClick={() => {}} className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors cursor-pointer">Submit Ad</span>
+            <Link href="/submit-ad" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Submit Ad</Link>
             {isSignedIn ? (
               <div className="flex items-center gap-3">
                 <span className="text-sm text-surface-600">{user?.firstName || 'User'}</span>
