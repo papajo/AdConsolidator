@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Head from 'next/head';
 import { useUser } from '@clerk/nextjs';
 import Header from '../../components/Header';
@@ -8,10 +8,12 @@ const CATEGORIES = ['Products', 'Services', 'Events'];
 const LOCATIONS = ['Global', 'North America', 'Europe', 'Asia Pacific', 'Online'];
 
 export default function SubmitAd() {
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
   const [step, setStep] = useState(1);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const [form, setForm] = useState({
-    title: '', category: '', location: '', price: '', description: '', contactName: '', contactEmail: '', contactPhone: '', website: '', tags: '',
+    title: '', category: '', location: '', price: '', description: '', contactName: '', contactEmail: '', contactPhone: '', website: '', tags: '', images: [],
   });
   const [submitted, setSubmitted] = useState(false);
 
@@ -38,9 +40,101 @@ export default function SubmitAd() {
 
   const update = (key, val) => setForm({ ...form, [key]: val });
 
-  const handleSubmit = (e) => {
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const remaining = 5 - form.images.length;
+    const toUpload = files.slice(0, remaining);
+    if (files.length > remaining) {
+      alert(`Maximum 5 images allowed. Uploading ${remaining} of ${files.length} selected.`);
+    }
+
+    setUploading(true);
+    const newImages = [];
+
+    for (const file of toUpload) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`${file.name} is too large (max 5MB)`);
+        continue;
+      }
+      if (!file.type.startsWith('image/')) {
+        alert(`${file.name} is not an image`);
+        continue;
+      }
+
+      try {
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ file: base64 }),
+        });
+
+        const data = await res.json();
+        if (data.url) {
+          newImages.push({ url: data.url, publicId: data.publicId });
+        } else {
+          alert(`Upload failed for ${file.name}: ${data.error || 'Unknown error'}`);
+        }
+      } catch (err) {
+        alert(`Upload error for ${file.name}: ${err.message}`);
+      }
+    }
+
+    setForm({ ...form, images: [...form.images, ...newImages] });
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeImage = (idx) => {
+    setForm({ ...form, images: form.images.filter((_, i) => i !== idx) });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+
+    const categoryMap = { Products: 1, Services: 2, Events: 3 };
+    const adData = {
+      title: form.title,
+      category_id: categoryMap[form.category],
+      location: form.location,
+      price: form.price || null,
+      description: form.description,
+      contact_email: form.contactEmail,
+      contact_phone: form.contactPhone || null,
+      contact_website: form.website || null,
+      tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
+      images: form.images.map(img => img.url),
+      user_id: user?.id,
+      status: 'pending',
+    };
+
+    try {
+      const res = await fetch('/api/ads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(adData),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        console.error('Submit ad error:', err);
+        alert(err.error || 'Failed to submit ad. Please try again.');
+        return;
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Submit ad error:', err);
+      alert('Something went wrong. Please try again.');
+    }
   };
 
   if (submitted) {
@@ -130,6 +224,44 @@ export default function SubmitAd() {
                 <div>
                   <label className="block text-sm font-medium text-surface-700 mb-1">Price <span className="text-surface-400 font-normal">(optional)</span></label>
                   <input type="text" className="input-field" placeholder="e.g. $299/year or Free / Contact us" value={form.price} onChange={e => update('price', e.target.value)} />
+                </div>
+
+                {/* Image Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 mb-1">
+                    Images <span className="text-surface-400 font-normal">(optional, max 5)</span>
+                  </label>
+                  <p className="text-xs text-surface-400 mb-3">Upload product photos (PNG, JPG, WebP — max 5MB each)</p>
+                  <div className="flex flex-wrap gap-3 mb-3">
+                    {form.images.map((img, idx) => (
+                      <div key={idx} className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-surface-200 group">
+                        <img src={img.url} alt={`Upload ${idx + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(idx)}
+                          className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                        >×</button>
+                      </div>
+                    ))}
+                    {form.images.length < 5 && (
+                      <label className="w-24 h-24 rounded-xl border-2 border-dashed border-surface-300 flex flex-col items-center justify-center cursor-pointer hover:border-brand-400 hover:bg-brand-50/50 transition-colors">
+                        <svg className="w-6 h-6 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span className="text-xs text-surface-400 mt-1">Add</span>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={handleImageUpload}
+                          disabled={uploading}
+                        />
+                      </label>
+                    )}
+                  </div>
+                  {uploading && <p className="text-xs text-brand-600">Uploading...</p>}
                 </div>
               </div>
             )}
