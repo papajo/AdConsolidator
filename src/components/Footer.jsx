@@ -39,10 +39,10 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-surface-800 text-sm mb-3">Legal</h4>
             <ul className="space-y-2">
-              <li><span className="text-sm text-surface-500 hover:text-brand-600 transition-colors cursor-pointer">Terms of Service</span></li>
-              <li><span className="text-sm text-surface-500 hover:text-brand-600 transition-colors cursor-pointer">Privacy Policy</span></li>
-              <li><span className="text-sm text-surface-500 hover:text-brand-600 transition-colors cursor-pointer">DMCA Requests</span></li>
-              <li><span className="text-sm text-surface-500 hover:text-brand-600 transition-colors cursor-pointer">Cookie Policy</span></li>
+              <li><Link href="/legal/terms" className="text-sm text-surface-500 hover:text-brand-600 transition-colors">Terms of Service</Link></li>
+              <li><Link href="/legal/privacy" className="text-sm text-surface-500 hover:text-brand-600 transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/legal/dmca" className="text-sm text-surface-500 hover:text-brand-600 transition-colors">DMCA Requests</Link></li>
+              <li><Link href="/legal/cookies" className="text-sm text-surface-500 hover:text-brand-600 transition-colors">Cookie Policy</Link></li>
             </ul>
           </div>
         </div>
