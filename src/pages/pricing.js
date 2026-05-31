@@ -4,6 +4,16 @@ import Script from 'next/script';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
+function StripePricingTable({ id, publishableKey }) {
+  return (
+    <div
+      dangerouslySetInnerHTML={{
+        __html: `<stripe-pricing-table pricing-table-id="${id}" publishable-key="${publishableKey}"></stripe-pricing-table>`,
+      }}
+    />
+  );
+}
+
 export default function Pricing() {
   return (
     <>
@@ -33,7 +43,7 @@ export default function Pricing() {
             {/* Pro Plan Table */}
             <div className="glass-card rounded-3xl p-6">
               <h3 className="font-display text-xl text-surface-900 mb-4 text-center">Pro Plan</h3>
-              <stripe-pricing-table
+              <StripePricingTable
                 pricing-table-id="prctbl_1TdDYcH0yf0ExgHW18Vvr35h"
                 publishable-key="pk_test_ukl8beX9GjLAyN4bTUzPztls"
               />
@@ -42,7 +52,7 @@ export default function Pricing() {
             {/* Business Plan Table */}
             <div className="glass-card rounded-3xl p-6">
               <h3 className="font-display text-xl text-surface-900 mb-4 text-center">Business Plan</h3>
-              <stripe-pricing-table
+              <StripePricingTable
                 pricing-table-id="prctbl_1TdDZSH0yf0ExgHWKp6lEZAY"
                 publishable-key="pk_test_ukl8beX9GjLAyN4bTUzPztls"
               />
