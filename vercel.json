@@ -6,13 +6,8 @@
   "regions": ["iad1"],
   "functions": {
     "src/pages/api/**/*.js": {
-      "maxDuration": 10
-    },
-    "src/pages/api/upload/index.js": {
-      "maxDuration": 60
-    },
-    "src/pages/api/contact.js": {
-      "maxDuration": 15
+      "maxDuration": 60,
+      "memory": 1024
     }
   }
 }
