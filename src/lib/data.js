@@ -251,11 +251,14 @@ export async function createAd(adData) {
 
   const { data, error } = await supabaseAdmin
     .from('ads')
-    .insert({ ...adData, user_id: profileId })
+    .insert({ ...adData, user_id: profileId || null })
     .select()
     .single();
 
-  if (error) { console.error('Supabase createAd error:', JSON.stringify(error)); return { error }; }
+  if (error) {
+    console.error('Supabase createAd error:', JSON.stringify(error));
+    return { error: { message: error.message || JSON.stringify(error) } };
+  }
   return { data, success: true };
 }
 

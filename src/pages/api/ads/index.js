@@ -14,7 +14,8 @@ export default async function handler(req, res) {
 
     if (result.error) {
       console.error('Create ad error:', JSON.stringify(result.error));
-      return res.status(400).json({ error: result.error.message || 'Failed to create ad' });
+      const msg = typeof result.error === 'string' ? result.error : (result.error.message || JSON.stringify(result.error));
+      return res.status(400).json({ error: msg });
     }
 
     return res.status(201).json({ ad: result.data });
