@@ -11,7 +11,7 @@ async function resolveProfileId(clerkId) {
     .from('profiles')
     .select('id')
     .eq('clerk_id', clerkId)
-    .single();
+    .maybeSingle();
 
   if (data?.id) {
     clerkIdCache.set(clerkId, data.id);
@@ -151,7 +151,7 @@ export async function getAdById(id) {
     .select('*, categories(name, slug)')
     .eq('id', id)
     .eq('status', 'approved')
-    .single();
+    .maybeSingle();
 
   if (error || !data) return null;
   // Increment views
@@ -270,7 +270,7 @@ export async function getUserAds(userId) {
         .from('profiles')
         .select('id')
         .eq('clerk_id', userId)
-        .single();
+        .maybeSingle();
 
       let profileId = profileResult.data?.id;
 
