@@ -1,6 +1,11 @@
 import { useState } from 'react';
+import { useUser } from '@clerk/nextjs';
 
 export default function SubmitAdModal({ onClose, onSubmit }) {
+  const { isSignedIn, user } = useUser();
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -15,11 +20,101 @@ export default function SubmitAdModal({ onClose, onSubmit }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(form);
-    onClose();
+    setError(null);
+
+    if (!isSignedIn) {
+      setError('Please sign in to submit an ad.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const categoryMap = { Products: 1, Services: 2, Events: 3, Other: 1 };
+      const adData = {
+        title: form.title,
+        category_id: categoryMap[form.category],
+        category: form.category,
+        location: form.location,
+        description: form.description,
+        contact_email: form.contact_email,
+        contact_phone: form.contact_phone || null,
+        contact_website: form.contact_website || null,
+        tags: [],
+        image_url: null,
+        user_id: user?.id,
+        status: 'pending',
+      };
+
+      const res = await fetch('/api/ads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(adData),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to submit ad');
+      }
+
+      const result = await res.json();
+      setSubmitted(true);
+      if (onSubmit) onSubmit(result.ad);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  if (!isSignedIn) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto">
+        <div className="fixed inset-0 bg-surface-950/60 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+        <div className="relative w-full max-w-2xl mx-4 my-8 glass-card rounded-3xl overflow-hidden animate-slide-up shadow-2xl">
+          <div className="h-3 w-full bg-gradient-to-r from-brand-400 via-brand-500 to-brand-600" />
+          <div className="p-8 text-center py-16">
+            <div className="w-16 h-16 rounded-full bg-surface-100 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h3 className="font-display text-xl text-surface-900 mb-2">Sign in required</h3>
+            <p className="text-sm text-surface-500 mb-6">You need to sign in before submitting an ad.</p>
+            <div className="flex gap-3 justify-center">
+              <a href="/sign-in" className="btn-primary">Sign In</a>
+              <button onClick={onClose} className="btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (submitted) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto">
+        <div className="fixed inset-0 bg-surface-950/60 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+        <div className="relative w-full max-w-2xl mx-4 my-8 glass-card rounded-3xl overflow-hidden animate-slide-up shadow-2xl">
+          <div className="h-3 w-full bg-gradient-to-r from-brand-400 via-brand-500 to-brand-600" />
+          <div className="p-8 text-center py-16">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4 animate-fade-in">
+              <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="font-display text-xl text-surface-900 mb-2">Ad submitted!</h3>
+            <p className="text-sm text-surface-500 mb-6">Your ad is pending review. Estimated time: 24 hours.</p>
+            <div className="flex gap-3 justify-center">
+              <a href="/me/ads" className="btn-primary" onClick={onClose}>My Ads</a>
+              <button onClick={() => { setSubmitted(false); setForm({ title: '', description: '', category: 'Products', contact_email: '', contact_phone: '', contact_website: '', location: '' }); }} className="btn-secondary">Submit Another</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto">
@@ -40,6 +135,12 @@ export default function SubmitAdModal({ onClose, onSubmit }) {
         <div className="p-8">
           <h2 className="font-display text-2xl text-surface-900 mb-2">Submit New Advertisement</h2>
           <p className="text-sm text-surface-500 mb-6">Fill in the details below to submit your ad for review.</p>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -139,10 +240,10 @@ export default function SubmitAdModal({ onClose, onSubmit }) {
             </div>
 
             <div className="flex gap-3 pt-4">
-              <button type="submit" className="btn-primary flex-1">
-                Submit for Review
+              <button type="submit" className="btn-primary flex-1" disabled={submitting}>
+                {submitting ? 'Submitting...' : 'Submit for Review'}
               </button>
-              <button type="button" onClick={onClose} className="btn-secondary">
+              <button type="button" onClick={onClose} className="btn-secondary" disabled={submitting}>
                 Cancel
               </button>
             </div>
