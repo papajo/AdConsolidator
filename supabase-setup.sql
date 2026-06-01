@@ -78,8 +78,18 @@ create table if not exists public.ads (
   updated_at timestamptz default now()
 );
 
--- Add new columns if table already exists without them
+-- Make user_id nullable until profile exists
+alter table public.ads alter column user_id drop not null;
+
 alter table public.ads add column if not exists image_url text;
+alter table public.ads add column if not exists image_urls text[];
+alter table public.ads add column if not exists tags text[];
+alter table public.ads add column if not exists location text;
+alter table public.ads add column if not exists views integer default 0;
+alter table public.ads add column if not exists is_sponsored boolean default false;
+alter table public.ads add column if not exists contact_email text;
+alter table public.ads add column if not exists contact_phone text;
+alter table public.ads add column if not exists contact_website text;
 alter table public.ads add column if not exists image_urls text[];
 alter table public.ads add column if not exists tags text[];
 alter table public.ads add column if not exists location text;

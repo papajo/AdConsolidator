@@ -53,12 +53,15 @@ export default async function handler(req, res) {
         .from('ad-images')
         .upload(filename, buffer, { contentType: mimeType, upsert: true });
 
-      if (error) return res.status(500).json({ error: error.message });
+      if (error) {
+        const errMsg = typeof error === 'string' ? error : (error.message || JSON.stringify(error));
+        return res.status(500).json({ error: errMsg });
+      }
 
       // Get public URL
-      const { data: { publicUrl } } = supabaseAdmin.storage.from('ad-images').getPublicUrl(filename);
+      const { data: publicData } = supabaseAdmin.storage.from('ad-images').getPublicUrl(filename);
 
-      return res.status(200).json({ url: publicUrl, publicId: filename });
+      return res.status(200).json({ url: publicData.publicUrl, publicId: filename });
     } catch (err) {
       return res.status(500).json({ error: 'Supabase upload failed: ' + err.message });
     }
