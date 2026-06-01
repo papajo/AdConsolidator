@@ -265,20 +265,27 @@ export async function createAd(adData) {
 export async function getUserAds(userId) {
   if (!isSupabaseConfigured()) return MOCK_ADS.filter(a => a.user_id === userId);
 
-  // Resolve Clerk ID → Supabase profile UUID
-  let profileId = userId;
-  if (typeof userId === 'string' && userId.startsWith('user_')) {
-    profileId = await resolveProfileId(userId);
-  }
+      // If user has no profile yet, show a message or show ads by looking up profile
+      const profileResult = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('clerk_id', userId)
+        .single();
 
-  const { data, error } = await supabaseAdmin
-    .from('ads')
-    .select('*, categories(name, slug)')
-    .eq('user_id', profileId)
-    .order('created_at', { ascending: false });
+      let profileId = profileResult.data?.id;
 
-  if (error) return [];
-  return data || [];
+      let ads = [];
+      if (profileId) {
+        const { data } = await supabaseAdmin
+          .from('ads')
+          .select('*, categories(name, slug)')
+          .eq('user_id', profileId)
+          .order('created_at', { ascending: false });
+        ads = data || [];
+      } else {
+        // No profile yet — show a helpful message
+        ads = [];
+      }
 }
 
 // ============================================

@@ -55,7 +55,7 @@ export default async function handler(req, res) {
       const mimeType = matches[1];
       const buffer = Buffer.from(matches[2], 'base64');
       const ext = mimeType.split('/')[1] || 'png';
-      const filename = `xyzt-ads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
       const { error } = await supabaseAdmin.storage
         .from('ad-images')
