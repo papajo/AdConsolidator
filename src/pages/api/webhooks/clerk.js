@@ -1,4 +1,3 @@
-import crypto from "crypto";
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = createClient(
@@ -31,13 +30,17 @@ export async function POST(req) {
   if (type === 'user.created' || type === 'user.updated') {
     const primaryEmail = data.email_addresses?.find((e) => e.primary)?.email_address || data.email_addresses?.[0]?.email_address;
     const { error } = await supabaseAdmin.from('profiles').upsert({
-      id: data.id, email: primaryEmail,
-      first_name: data.first_name || null, last_name: data.last_name || null,
-      avatar_url: data.image_url || null, phone: data.phone_numbers?.[0]?.phone_number || null,
-    }, { onConflict: 'id' });
+      clerk_id: data.id,
+      email: primaryEmail,
+      first_name: data.first_name || null,
+      last_name: data.last_name || null,
+      avatar_url: data.image_url || null,
+      phone: data.phone_numbers?.[0]?.phone_number || null,
+    }, { onConflict: 'clerk_id' });
+
     if (error) console.error('Error syncing user:', error);
   } else if (type === 'user.deleted') {
-    const { error } = await supabaseAdmin.from('profiles').delete().eq('id', data.id);
+    const { error } = await supabaseAdmin.from('profiles').delete().eq('clerk_id', data.id);
     if (error) console.error('Error deleting user:', error);
   }
 
@@ -45,7 +48,7 @@ export async function POST(req) {
 }
 
 function verifySvixSignature(svixId, svixTimestamp, body, svixSignature, secret) {
-  
+  const crypto = require('crypto');
   const signingSecret = secret.startsWith('whsec_') ? secret.replace('whsec_', '') : secret;
   const key = Buffer.from(signingSecret, 'base64');
   const payload = `${svixId}.${svixTimestamp}.${body}`;
