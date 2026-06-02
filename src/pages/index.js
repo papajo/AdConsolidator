@@ -156,10 +156,10 @@ export default function HomePage({
 
         <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-14 w-full">
           {/* ─── Unified Filter & Status Bar ─── */}
-          <div className="flex flex-wrap items-center gap-3 mb-5">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             {/* Filter group: category pills + search */}
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <div className="flex gap-1 overflow-x-auto scrollbar-none">
+            <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="-mx-1 flex gap-1 overflow-x-auto px-1 scrollbar-none sm:mx-0 sm:px-0">
                 {CATEGORIES.map((cat) => {
                   const isActive = cat === activeCategory;
                   return (
@@ -179,7 +179,7 @@ export default function HomePage({
               </div>
 
               {/* Search */}
-              <div className="relative min-w-[140px] max-w-[200px]">
+              <div className="relative w-full sm:w-auto sm:min-w-[180px] sm:max-w-[220px]">
                 <svg
                   className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-surface-400"
                   fill="none"
@@ -224,36 +224,53 @@ export default function HomePage({
             </div>
 
             {/* Status group: stats + action buttons */}
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center justify-between gap-3 sm:shrink-0 sm:justify-end">
               {stats && (
-                <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 text-xs text-surface-500 bg-white/70 rounded-lg border border-surface-200/60">
-                  <span>
-                    <strong className="text-surface-700">
-                      {stats.totalAds}
-                    </strong>{" "}
-                    listings
-                  </span>
-                  <span className="w-px h-3 bg-surface-300/40" />
-                  <span>
-                    <strong className="text-surface-700">
-                      {stats.avgRating}
-                    </strong>{" "}
-                    ★
-                  </span>
-                  <span className="w-px h-3 bg-surface-300/40" />
-                  <span>
-                    <strong className="text-surface-700">
-                      {(stats.totalViews || 0).toLocaleString()}
-                    </strong>{" "}
-                    views
-                  </span>
-                </div>
+                <>
+                  <div className="flex items-center gap-2 rounded-lg border border-surface-200/60 bg-white/70 px-3 py-1.5 text-[11px] text-surface-500 sm:hidden">
+                    <span>
+                      <strong className="text-surface-700">
+                        {stats.totalAds}
+                      </strong>{" "}
+                      listings
+                    </span>
+                    <span className="text-surface-300">·</span>
+                    <span>
+                      <strong className="text-surface-700">
+                        {stats.avgRating}
+                      </strong>{" "}
+                      ★
+                    </span>
+                  </div>
+                  <div className="hidden items-center gap-2.5 rounded-lg border border-surface-200/60 bg-white/70 px-3 py-1.5 text-xs text-surface-500 sm:flex">
+                    <span>
+                      <strong className="text-surface-700">
+                        {stats.totalAds}
+                      </strong>{" "}
+                      listings
+                    </span>
+                    <span className="h-3 w-px bg-surface-300/40" />
+                    <span>
+                      <strong className="text-surface-700">
+                        {stats.avgRating}
+                      </strong>{" "}
+                      ★
+                    </span>
+                    <span className="h-3 w-px bg-surface-300/40" />
+                    <span>
+                      <strong className="text-surface-700">
+                        {(stats.totalViews || 0).toLocaleString()}
+                      </strong>{" "}
+                      views
+                    </span>
+                  </div>
+                </>
               )}
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowSubmitModal(true)}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 text-white transition-colors hover:bg-brand-600 sm:h-7 sm:w-7"
                   title="New Ad"
                 >
                   <svg
@@ -272,7 +289,7 @@ export default function HomePage({
                 </button>
                 <button
                   onClick={() => setShowNotifications(true)}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-surface-200 text-surface-500 hover:bg-surface-50 transition-colors"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-surface-200 bg-white text-surface-500 transition-colors hover:bg-surface-50 sm:h-7 sm:w-7"
                   title="Alerts"
                 >
                   <svg
@@ -298,7 +315,7 @@ export default function HomePage({
             searchQuery === "" &&
             activeCategory === "All" && (
               <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3">
+                <div className="mb-3 flex items-center gap-2">
                   <svg
                     className="w-4 h-4 text-amber-500"
                     fill="currentColor"
@@ -309,13 +326,19 @@ export default function HomePage({
                   <span className="text-sm font-semibold text-surface-800">
                     Featured
                   </span>
-                  <span className="text-[11px] text-surface-400">
+                  <span className="text-[11px] text-surface-400 sm:hidden">
+                    Swipe →
+                  </span>
+                  <span className="hidden text-[11px] text-surface-400 sm:inline">
                     Scroll for more →
                   </span>
                 </div>
                 <div className="-mx-4 flex items-stretch gap-4 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-none">
                   {featured.map((ad, index) => (
-                    <div key={ad.id} className="snap-start shrink-0 w-64">
+                    <div
+                      key={ad.id}
+                      className="w-[min(18rem,calc(100vw-2.5rem))] snap-start shrink-0 sm:w-64"
+                    >
                       <AdCard ad={ad} onClick={handleAdClick} index={index} />
                     </div>
                   ))}
@@ -326,7 +349,7 @@ export default function HomePage({
             )}
 
           {/* ─── Result count ─── */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[11px] text-surface-400">
               {isLoading
                 ? "Loading..."
@@ -343,7 +366,7 @@ export default function HomePage({
 
           {/* ─── Ad Grid ─── */}
           {isLoading ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:auto-rows-fr">
+            <div className="grid grid-cols-1 gap-4 sm:auto-rows-fr sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
               {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
@@ -364,7 +387,7 @@ export default function HomePage({
               ))}
             </div>
           ) : ads.length > 0 ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:auto-rows-fr">
+            <div className="grid grid-cols-1 gap-4 sm:auto-rows-fr sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
               {ads.map((ad, index) => (
                 <AdCard
                   key={ad.id}
