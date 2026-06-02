@@ -30,7 +30,7 @@ export default function AdCard({ ad, onClick, index }) {
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      className="group flex h-full min-h-[248px] flex-col rounded-xl border border-surface-200/70 bg-white shadow-sm transition-all duration-200 cursor-pointer opacity-0 animate-slide-up hover:-translate-y-0.5 hover:shadow-md sm:min-h-[252px] lg:min-h-[260px] focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:ring-offset-2 focus:ring-offset-surface-50"
+      className="group flex h-full min-h-[224px] flex-col rounded-xl border border-surface-200/70 bg-white shadow-sm transition-all duration-200 cursor-pointer opacity-0 animate-slide-up hover:-translate-y-0.5 hover:shadow-md sm:min-h-[214px] lg:min-h-[220px] focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:ring-offset-2 focus:ring-offset-surface-50"
       style={{ animationDelay: `${delay}s`, animationFillMode: "forwards" }}
     >
       {/* Color strip */}
@@ -46,16 +46,16 @@ export default function AdCard({ ad, onClick, index }) {
         }`}
       />
 
-      <div className="flex h-full flex-col gap-2.5 p-4 sm:gap-2 sm:p-3.5">
+      <div className="flex h-full flex-col gap-2 p-3.5 sm:gap-1.5 sm:p-3">
         {/* Top badge row: category + sponsored */}
-        <div className="flex min-h-[24px] flex-wrap items-start justify-between gap-2">
+        <div className="flex min-h-[22px] flex-wrap items-start justify-between gap-1.5">
           <span
-            className={`text-[11px] font-medium px-2.5 py-1 rounded-full border leading-none ${tagColors[category] || tagColors.Other}`}
+            className={`rounded-full border px-2 py-1 text-[10px] font-medium leading-none ${tagColors[category] || tagColors.Other}`}
           >
             {category}
           </span>
           {ad.is_sponsored && (
-            <span className="flex shrink-0 items-center gap-1 text-[10px] font-normal text-amber-500">
+            <span className="flex shrink-0 items-center gap-1 text-[9px] font-normal text-amber-500">
               <svg
                 className="w-2.5 h-2.5"
                 fill="currentColor"
@@ -69,12 +69,12 @@ export default function AdCard({ ad, onClick, index }) {
         </div>
 
         {/* Title */}
-        <h3 className="line-clamp-2 min-h-[2.4rem] text-sm font-semibold leading-snug text-surface-900 transition-colors group-hover:text-brand-700 sm:min-h-[2.2rem]">
+        <h3 className="line-clamp-2 min-h-[2.2rem] text-[13px] font-semibold leading-snug text-surface-900 transition-colors group-hover:text-brand-700 sm:line-clamp-1 sm:min-h-[1.25rem]">
           {ad.title}
         </h3>
 
         {/* Description (fixed 2-line height container) */}
-        <p className="line-clamp-2 min-h-[2.9rem] text-xs leading-relaxed text-surface-500 sm:min-h-[2.6rem]">
+        <p className="line-clamp-2 min-h-[2.6rem] text-[11px] leading-relaxed text-surface-500 sm:min-h-[2.35rem]">
           {ad.description}
         </p>
 
@@ -82,9 +82,9 @@ export default function AdCard({ ad, onClick, index }) {
         <div className="flex-1 min-h-0" />
 
         {/* Footer metadata */}
-        <div className="mt-auto flex min-h-[40px] flex-col gap-2 border-t border-surface-100 pt-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="mt-auto flex min-h-[36px] flex-col gap-1.5 border-t border-surface-100 pt-2 sm:flex-row sm:items-center sm:justify-between sm:gap-2.5">
           {/* Left: date */}
-          <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-surface-400 sm:text-xs">
+          <div className="flex min-w-0 items-center gap-1.5 text-[10px] text-surface-400 sm:text-[11px]">
             <svg
               className="w-3.5 h-3.5 shrink-0"
               fill="none"
@@ -102,7 +102,7 @@ export default function AdCard({ ad, onClick, index }) {
           </div>
 
           {/* Right group: views · rating · location */}
-          <div className="flex w-full min-w-0 items-center justify-between gap-2 text-[11px] sm:w-auto sm:justify-start sm:gap-2.5 sm:text-xs">
+          <div className="flex w-full min-w-0 items-center justify-between gap-1.5 text-[10px] sm:w-auto sm:justify-start sm:gap-2 sm:text-[11px]">
             <div className="flex items-center gap-1 text-inherit text-surface-400">
               <svg
                 className="w-3.5 h-3.5 shrink-0"
@@ -145,7 +145,7 @@ export default function AdCard({ ad, onClick, index }) {
               <>
                 <span className="text-surface-200">·</span>
                 <span
-                  className="max-w-[96px] truncate text-inherit text-surface-400 sm:max-w-[72px]"
+                  className="max-w-[84px] truncate text-inherit text-surface-400 sm:max-w-[64px]"
                   title={ad.location}
                 >
                   {ad.location}

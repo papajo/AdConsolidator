@@ -330,7 +330,7 @@ export default function HomePage({
                     Featured picks
                   </span>
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
                   {featured.map((ad, index) => (
                     <AdCard
                       key={ad.id}
@@ -361,14 +361,14 @@ export default function HomePage({
 
           {/* ─── Ad Grid ─── */}
           {isLoading ? (
-            <div className="grid grid-cols-1 gap-4 sm:auto-rows-fr sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:auto-rows-fr sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
               {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
-                  className="min-h-[268px] overflow-hidden rounded-xl border border-surface-200/60 bg-white shadow-sm animate-pulse"
+                  className="min-h-[220px] overflow-hidden rounded-xl border border-surface-200/60 bg-white shadow-sm animate-pulse"
                 >
                   <div className="h-1.5 bg-surface-100 rounded-t-xl" />
-                  <div className="p-4 space-y-3">
+                  <div className="space-y-2 p-3.5 sm:space-y-1.5 sm:p-3">
                     <div className="h-3 bg-surface-100 rounded w-16" />
                     <div className="h-4 bg-surface-100 rounded w-3/4" />
                     <div className="h-3 bg-surface-50 rounded w-full" />
@@ -382,7 +382,7 @@ export default function HomePage({
               ))}
             </div>
           ) : ads.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 sm:auto-rows-fr sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:auto-rows-fr sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
               {ads.map((ad, index) => (
                 <AdCard
                   key={ad.id}
