@@ -30,7 +30,7 @@ export default function AdCard({ ad, onClick, index }) {
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      className="group flex h-full min-h-[292px] flex-col rounded-xl border border-surface-200/70 bg-white shadow-sm transition-all duration-200 cursor-pointer opacity-0 animate-slide-up hover:-translate-y-0.5 hover:shadow-md sm:min-h-[268px] focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:ring-offset-2 focus:ring-offset-surface-50"
+      className="group flex h-full min-h-[248px] flex-col rounded-xl border border-surface-200/70 bg-white shadow-sm transition-all duration-200 cursor-pointer opacity-0 animate-slide-up hover:-translate-y-0.5 hover:shadow-md sm:min-h-[232px] focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:ring-offset-2 focus:ring-offset-surface-50"
       style={{ animationDelay: `${delay}s`, animationFillMode: "forwards" }}
     >
       {/* Color strip */}
@@ -46,7 +46,7 @@ export default function AdCard({ ad, onClick, index }) {
         }`}
       />
 
-      <div className="flex h-full flex-col gap-3 p-4">
+      <div className="flex h-full flex-col gap-2.5 p-4 sm:gap-2 sm:p-3.5">
         {/* Top badge row: category + sponsored */}
         <div className="flex min-h-[24px] flex-wrap items-start justify-between gap-2">
           <span
@@ -69,12 +69,12 @@ export default function AdCard({ ad, onClick, index }) {
         </div>
 
         {/* Title */}
-        <h3 className="line-clamp-2 min-h-[2.6rem] text-sm font-semibold leading-snug text-surface-900 transition-colors group-hover:text-brand-700">
+        <h3 className="line-clamp-2 min-h-[2.4rem] text-sm font-semibold leading-snug text-surface-900 transition-colors group-hover:text-brand-700 sm:min-h-[2.2rem]">
           {ad.title}
         </h3>
 
         {/* Description (fixed 2-line height container) */}
-        <p className="line-clamp-3 min-h-[3.75rem] text-xs leading-relaxed text-surface-500">
+        <p className="line-clamp-2 min-h-[2.9rem] text-xs leading-relaxed text-surface-500 sm:min-h-[2.6rem]">
           {ad.description}
         </p>
 
@@ -82,7 +82,7 @@ export default function AdCard({ ad, onClick, index }) {
         <div className="flex-1 min-h-0" />
 
         {/* Footer metadata */}
-        <div className="mt-auto flex min-h-[44px] flex-col gap-2 border-t border-surface-100 pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="mt-auto flex min-h-[40px] flex-col gap-2 border-t border-surface-100 pt-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
           {/* Left: date */}
           <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-surface-400 sm:text-xs">
             <svg

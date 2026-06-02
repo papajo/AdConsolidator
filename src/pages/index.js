@@ -326,24 +326,19 @@ export default function HomePage({
                   <span className="text-sm font-semibold text-surface-800">
                     Featured
                   </span>
-                  <span className="text-[11px] text-surface-400 sm:hidden">
-                    Swipe →
-                  </span>
-                  <span className="hidden text-[11px] text-surface-400 sm:inline">
-                    Scroll for more →
+                  <span className="text-[11px] text-surface-400">
+                    Featured picks
                   </span>
                 </div>
-                <div className="-mx-4 flex items-stretch gap-4 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-none">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   {featured.map((ad, index) => (
-                    <div
+                    <AdCard
                       key={ad.id}
-                      className="w-[min(18rem,calc(100vw-2.5rem))] snap-start shrink-0 sm:w-64"
-                    >
-                      <AdCard ad={ad} onClick={handleAdClick} index={index} />
-                    </div>
+                      ad={ad}
+                      onClick={handleAdClick}
+                      index={index}
+                    />
                   ))}
-                  {/* Scroll affordance fade */}
-                  <div className="shrink-0 w-8 bg-gradient-to-l from-transparent to-transparent pointer-events-none" />
                 </div>
               </div>
             )}
