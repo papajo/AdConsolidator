@@ -4,16 +4,16 @@ import Head from 'next/head';
 import Header from '../components/Header';
 import AdCard from '../components/AdCard';
 import AdDetail from '../components/AdDetail';
-import StatsBar from '../components/StatsBar';
 import SubmitAdModal from '../components/SubmitAdModal';
 import NotificationPanel from '../components/NotificationPanel';
 import Footer from '../components/Footer';
-import { getAds, getAdById, getReviewsByAdId, getStats } from '../lib/data';
+import { getAds, getFeaturedAds, getAdById, getReviewsByAdId, getStats } from '../lib/data';
 
-export default function HomePage({ initialAds, initialStats, initialAd, initialAdReviews }) {
+export default function HomePage({ initialAds, initialStats, initialAd, initialAdReviews, initialFeatured }) {
   const router = useRouter();
   const [ads, setAds] = useState(initialAds.ads);
   const [totalAds, setTotalAds] = useState(initialAds.total);
+  const [featured, setFeatured] = useState(initialFeatured || []);
   const [stats, setStats] = useState(initialStats);
   const [selectedAd, setSelectedAd] = useState(initialAd || null);
   const [selectedAdReviews, setSelectedAdReviews] = useState(initialAdReviews || []);
@@ -52,25 +52,24 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
     }
   }, [router.query.ad, initialAd]);
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
-
-  const handleCategoryChange = (category) => {
-    setActiveCategory(category);
-  };
+  const handleSearch = (query) => { setSearchQuery(query); };
+  const handleCategoryChange = (category) => { setActiveCategory(category); };
 
   const handleAdClick = async (ad) => {
     const fullAd = await getAdById(ad.id);
     const reviews = await getReviewsByAdId(ad.id);
-    setSelectedAd(fullAd);
-    setSelectedAdReviews(reviews);
+    if (fullAd) {
+      setSelectedAd(fullAd);
+      setSelectedAdReviews(reviews);
+    }
   };
 
-  const handleSubmitAd = (formData) => {
-    // In production, this would POST to the API
-    console.log('New ad submitted:', formData);
-  };
+  // ─── How It Works steps ───
+  const steps = [
+    { icon: '🔍', title: 'Browse Listings', desc: 'Explore advertisements across Products, Services, and Events — all in one place.' },
+    { icon: '📋', title: 'Post Your Ad', desc: 'Submit your own advertisement in minutes. Reach the XYZT-123456 audience instantly.' },
+    { icon: '📈', title: 'Grow Your Reach', desc: 'Track views, get reviews, and upgrade to sponsored spots for maximum visibility.' },
+  ];
 
   return (
     <>
@@ -80,55 +79,101 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
       </Head>
 
       <div className="min-h-screen flex flex-col">
-        <Header
-          onSearch={handleSearch}
-          onCategoryChange={handleCategoryChange}
-          activeCategory={activeCategory}
-        />
+        <Header onSearch={handleSearch} onCategoryChange={handleCategoryChange} activeCategory={activeCategory} />
 
-        {/* Hero section */}
-        <section className="relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
-            <div className="text-center max-w-2xl mx-auto opacity-0 animate-slide-up" style={{ animationFillMode: 'forwards' }}>
-              <h2 className="font-display text-4xl md:text-5xl text-surface-900 mb-4 leading-tight">
+        {/* ──────── HERO ──────── */}
+        <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
+            <div className="text-center max-w-3xl mx-auto">
+              <div className="inline-flex items-center gap-2 bg-brand-100 text-brand-700 text-xs font-semibold px-3 py-1 rounded-full mb-4">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
+                Connecting the XYZT-123456 ecosystem
+              </div>
+              <h1 className="font-display text-5xl md:text-6xl text-surface-900 mb-4 leading-tight">
                 Discover <span className="gradient-text">XYZT</span> Advertisements
-              </h2>
-              <p className="text-surface-600 text-lg leading-relaxed mb-6">
-                Your central hub for finding and publishing advertisements related to XYZT → 123456 now. 
-                Search, filter, and connect with advertisers instantly.
+              </h1>
+              <p className="text-surface-600 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
+                Your central hub for publishing and finding advertisements related to XYZT → 123456.
+                Browse, search, and connect with advertisers — all in one marketplace.
               </p>
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center justify-center gap-3 flex-wrap">
                 <button onClick={() => setShowSubmitModal(true)} className="btn-primary">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
                   Submit Your Ad
                 </button>
-                <button onClick={() => setShowNotifications(true)} className="btn-secondary">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                  Get Alerts
-                </button>
+                {stats && (
+                  <div className="flex items-center gap-6 px-6 py-2">
+                    <div className="text-center">
+                      <span className="font-display text-2xl text-surface-900">{stats.totalAds}</span>
+                      <p className="text-xs text-surface-500">Listings</p>
+                    </div>
+                    <div className="w-px h-8 bg-surface-200" />
+                    <div className="text-center">
+                      <span className="font-display text-2xl text-surface-900">{stats.avgRating || '—'}</span>
+                      <p className="text-xs text-surface-500">Avg Rating</p>
+                    </div>
+                    <div className="w-px h-8 bg-surface-200" />
+                    <div className="text-center">
+                      <span className="font-display text-2xl text-surface-900">{stats.totalViews?.toLocaleString() || '—'}</span>
+                      <p className="text-xs text-surface-500">Views</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-brand-200/20 rounded-full blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl" />
         </section>
 
-        {/* Stats */}
-        <StatsBar stats={stats} />
+        {/* ──────── HOW IT WORKS ──────── */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+          <h2 className="font-display text-2xl text-surface-900 text-center mb-10">How it Works</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {steps.map((s, i) => (
+              <div key={i} className="text-center">
+                <div className="text-4xl mb-3">{s.icon}</div>
+                <h3 className="font-display text-lg text-surface-900 mb-1">{s.title}</h3>
+                <p className="text-sm text-surface-500 leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-        {/* Main content */}
-        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-          {/* Toolbar */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-surface-500">
-              {isLoading ? (
-                <span className="animate-pulse-soft">Searching...</span>
-              ) : (
-                <>Showing <span className="font-semibold text-surface-700">{ads.length}</span> of {totalAds} advertisements</>
-              )}
-            </p>
+        {/* ──────── FEATURED ADS ──────── */}
+        {featured.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="font-display text-2xl text-surface-900">Featured</h2>
+                <p className="text-xs text-surface-500 mt-0.5">Sponsored and top advertisements</p>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-surface-400">
+                <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
+                Sponsored
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
+              {featured.map((ad, i) => (
+                <AdCard key={ad.id} ad={ad} onClick={handleAdClick} index={i} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ──────── ALL ADS ──────── */}
+        <section className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+          <div className="flex items-end justify-between mb-4">
+            <div>
+              <h2 className="font-display text-2xl text-surface-900">Browse All</h2>
+              <p className="text-xs text-surface-500 mt-0.5">
+                {isLoading
+                  ? 'Searching...'
+                  : `${ads.length} of ${totalAds} advertisements`}
+              </p>
+            </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-surface-400">Sort:</span>
               <select
@@ -144,17 +189,16 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
             </div>
           </div>
 
-          {/* Ad grid */}
           {isLoading ? (
             <div className="card-grid">
-              {[...Array(6)].map((_, i) => (
+              {[...Array(10)].map((_, i) => (
                 <div key={i} className="glass-card rounded-2xl overflow-hidden">
-                  <div className="h-2 w-full bg-surface-200 animate-shimmer" style={{ backgroundSize: '200% 100%', backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)' }} />
-                  <div className="p-5 space-y-3">
-                    <div className="h-4 bg-surface-200 rounded w-20 animate-pulse" />
-                    <div className="h-5 bg-surface-200 rounded w-3/4 animate-pulse" />
-                    <div className="h-4 bg-surface-100 rounded w-full animate-pulse" />
-                    <div className="h-4 bg-surface-100 rounded w-2/3 animate-pulse" />
+                  <div className="h-2 w-full bg-gradient-to-r from-brand-400/30 to-brand-500/30 animate-shimmer" style={{ backgroundSize: '200% 100%', backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)' }} />
+                  <div className="p-4 space-y-2.5">
+                    <div className="h-3 bg-surface-200 rounded w-16 animate-pulse" />
+                    <div className="h-4 bg-surface-200 rounded w-3/4 animate-pulse" />
+                    <div className="h-3 bg-surface-100 rounded w-full animate-pulse" />
+                    <div className="h-3 bg-surface-100 rounded w-1/2 animate-pulse" />
                   </div>
                 </div>
               ))}
@@ -173,30 +217,21 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
                 </svg>
               </div>
               <h3 className="font-display text-xl text-surface-700 mb-2">No ads found</h3>
-              <p className="text-sm text-surface-500">Try adjusting your search query or category filter.</p>
+              <p className="text-sm text-surface-500">Try adjusting your search or category filter.</p>
             </div>
           )}
-        </main>
+        </section>
 
         <Footer />
       </div>
 
       {/* Modals */}
       {selectedAd && (
-        <AdDetail
-          ad={selectedAd}
-          reviews={selectedAdReviews}
-          onClose={() => setSelectedAd(null)}
-        />
+        <AdDetail ad={selectedAd} reviews={selectedAdReviews} onClose={() => setSelectedAd(null)} />
       )}
-
       {showSubmitModal && (
-        <SubmitAdModal
-          onClose={() => setShowSubmitModal(false)}
-          onSubmit={handleSubmitAd}
-        />
+        <SubmitAdModal onClose={() => setShowSubmitModal(false)} onSubmit={() => {}} />
       )}
-
       {showNotifications && (
         <NotificationPanel onClose={() => setShowNotifications(false)} />
       )}
@@ -205,9 +240,10 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
 }
 
 export async function getServerSideProps(context) {
-  const [initialAds, initialStats] = await Promise.all([
+  const [initialAds, initialStats, initialFeatured] = await Promise.all([
     getAds({ query: '', category: 'All', sort: 'default' }),
     getStats(),
+    getFeaturedAds().catch(() => []),
   ]);
 
   // Pre-fetch ad detail if ?ad=UUID is provided (deep link from My Ads)
@@ -227,6 +263,7 @@ export async function getServerSideProps(context) {
     props: {
       initialAds,
       initialStats,
+      initialFeatured: initialFeatured || [],
       initialAd,
       initialAdReviews,
     },
