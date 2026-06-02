@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -109,7 +110,7 @@ export default function MyAds() {
                       </div>
                     </div>
                     <div className="flex gap-2 ml-4">
-                      <a href={`/?ad=${ad.id}`} className="text-xs text-brand-600 hover:text-brand-700 font-medium">View</a>
+                      <Link href={`/?ad=${ad.id}`} className="text-xs text-brand-600 hover:text-brand-700 font-medium">View</Link>
                       <button className="text-xs text-surface-500 hover:text-surface-700 font-medium">Edit</button>
                     </div>
                   </div>

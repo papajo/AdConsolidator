@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Header from '../components/Header';
 import AdCard from '../components/AdCard';
@@ -9,12 +10,13 @@ import NotificationPanel from '../components/NotificationPanel';
 import Footer from '../components/Footer';
 import { getAds, getAdById, getReviewsByAdId, getStats } from '../lib/data';
 
-export default function HomePage({ initialAds, initialStats }) {
+export default function HomePage({ initialAds, initialStats, initialAd, initialAdReviews }) {
+  const router = useRouter();
   const [ads, setAds] = useState(initialAds.ads);
   const [totalAds, setTotalAds] = useState(initialAds.total);
   const [stats, setStats] = useState(initialStats);
-  const [selectedAd, setSelectedAd] = useState(null);
-  const [selectedAdReviews, setSelectedAdReviews] = useState([]);
+  const [selectedAd, setSelectedAd] = useState(initialAd || null);
+  const [selectedAdReviews, setSelectedAdReviews] = useState(initialAdReviews || []);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('default');
@@ -34,6 +36,21 @@ export default function HomePage({ initialAds, initialStats }) {
   useEffect(() => {
     fetchAds(searchQuery, activeCategory, sortBy);
   }, [searchQuery, activeCategory, sortBy, fetchAds]);
+
+  // Read ?ad=UUID from URL and open the detail modal
+  useEffect(() => {
+    const adId = router.query.ad;
+    if (adId && !initialAd) {
+      getAdById(adId).then((fullAd) => {
+        if (fullAd) {
+          getReviewsByAdId(adId).then((reviews) => {
+            setSelectedAd(fullAd);
+            setSelectedAdReviews(reviews || []);
+          });
+        }
+      });
+    }
+  }, [router.query.ad, initialAd]);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -187,14 +204,31 @@ export default function HomePage({ initialAds, initialStats }) {
   );
 }
 
-export async function getServerSideProps() {
-  const initialAds = await getAds({ query: '', category: 'All', sort: 'default' });
-  const initialStats = await getStats();
+export async function getServerSideProps(context) {
+  const [initialAds, initialStats] = await Promise.all([
+    getAds({ query: '', category: 'All', sort: 'default' }),
+    getStats(),
+  ]);
+
+  // Pre-fetch ad detail if ?ad=UUID is provided (deep link from My Ads)
+  const adId = context.query?.ad;
+  let initialAd = null;
+  let initialAdReviews = [];
+  if (adId && typeof adId === 'string') {
+    const [ad, reviews] = await Promise.all([
+      getAdById(adId).catch(() => null),
+      getReviewsByAdId(adId).catch(() => []),
+    ]);
+    initialAd = ad;
+    initialAdReviews = reviews || [];
+  }
 
   return {
     props: {
       initialAds,
       initialStats,
+      initialAd,
+      initialAdReviews,
     },
   };
 }
