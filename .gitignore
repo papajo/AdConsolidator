@@ -3,4 +3,5 @@ info.md
 node_modules/
 package-lock.json
 .env.local
+.DS_Store
 
