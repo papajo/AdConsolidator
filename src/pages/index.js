@@ -344,7 +344,7 @@ export default function HomePage({
             )}
 
           {/* ─── Result count ─── */}
-          <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-3 -mt-1 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[11px] text-surface-400">
               {isLoading
                 ? "Loading..."
