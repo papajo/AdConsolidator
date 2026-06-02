@@ -247,14 +247,18 @@ export async function createAd(adData) {
   }
 
   // Resolve Clerk ID → Supabase profile UUID
-  let profileId = adData.user_id;
-  if (profileId && typeof profileId === 'string' && profileId.startsWith('user_')) {
-    profileId = await resolveProfileId(profileId);
-  }
+  const rawClerkId = adData.user_id && typeof adData.user_id === 'string' && adData.user_id.startsWith('user_')
+    ? adData.user_id
+    : null;
+  const profileId = rawClerkId ? (await resolveProfileId(rawClerkId)) : null;
 
   const { data, error } = await supabaseAdmin
     .from('ads')
-    .insert({ ...adData, user_id: profileId || null })
+    .insert({
+      ...adData,
+      user_id: profileId || null,
+      clerk_id: rawClerkId, // always store the raw Clerk ID as fallback lookup
+    })
     .select()
     .single();
 
@@ -268,7 +272,7 @@ export async function createAd(adData) {
 export async function getUserAds(userId) {
   if (!isSupabaseConfigured()) return MOCK_ADS.filter(a => a.user_id === userId);
 
-  // Resolve Clerk ID → Supabase profile UUID
+  // Try resolving Clerk ID → Supabase profile UUID first
   const profileResult = await supabaseAdmin
     .from('profiles')
     .select('id')
@@ -276,13 +280,13 @@ export async function getUserAds(userId) {
     .maybeSingle();
 
   const profileId = profileResult.data?.id;
-  if (!profileId) return [];
 
-  const { data } = await supabaseAdmin
-    .from('ads')
-    .select('*, categories(name, slug)')
-    .eq('user_id', profileId)
-    .order('created_at', { ascending: false });
+  // Query by profile UUID if available, otherwise fall back to raw clerk_id
+  const query = profileId
+    ? supabaseAdmin.from('ads').select('*, categories(name, slug)').eq('user_id', profileId)
+    : supabaseAdmin.from('ads').select('*, categories(name, slug)').eq('clerk_id', userId);
+
+  const { data } = await query.order('created_at', { ascending: false });
 
   return data || [];
 }
