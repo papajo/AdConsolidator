@@ -287,7 +287,7 @@ export async function createAd(adData) {
     sanitizedPrice = null;
   }
 
-  const { category, category_name, contactName, price, ...safeData } = adData;
+  const { category, category_name, contactName, price, user_id, ...safeData } = adData;
 
   const { data, error } = await supabaseAdmin
     .from('ads')
@@ -295,6 +295,8 @@ export async function createAd(adData) {
       ...safeData,
       price: sanitizedPrice,
       user_id: profileId || null,
+      // Store raw Clerk ID as fallback lookup key when profile doesn't exist yet
+      clerk_id: !profileId ? rawClerkId : null,
     })
     .select()
     .single();
@@ -309,7 +311,7 @@ export async function createAd(adData) {
 export async function getUserAds(userId) {
   if (!isSupabaseConfigured()) return MOCK_ADS.filter(a => a.user_id === userId);
 
-  // Resolve Clerk ID → Supabase profile UUID
+  // Try resolving Clerk ID → Supabase profile UUID
   const profileResult = await supabaseAdmin
     .from('profiles')
     .select('id')
@@ -317,12 +319,24 @@ export async function getUserAds(userId) {
     .maybeSingle();
 
   const profileId = profileResult.data?.id;
-  if (!profileId) return [];
 
+  if (profileId) {
+    // Profile exists → look up by profile UUID
+    const { data } = await supabaseAdmin
+      .from('ads')
+      .select('*, categories(name, slug)')
+      .eq('user_id', profileId)
+      .order('created_at', { ascending: false });
+
+    return data || [];
+  }
+
+  // No profile yet (webhook hasn't synced, or RLS blocked creation)
+  // Fall back to clerk_id lookup on the ads table
   const { data } = await supabaseAdmin
     .from('ads')
     .select('*, categories(name, slug)')
-    .eq('user_id', profileId)
+    .eq('clerk_id', userId)
     .order('created_at', { ascending: false });
 
   return data || [];
