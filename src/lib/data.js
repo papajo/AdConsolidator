@@ -30,6 +30,51 @@ function normalizeAdRecord(ad) {
   };
 }
 
+function applyClientSideFilters(ads, filters = {}) {
+  const normalized = ads.map(normalizeAdRecord);
+  const search = (filters.search || filters.query || "").trim().toLowerCase();
+  const category = filters.category || "All";
+  const sort = filters.sort || "default";
+
+  let results = normalized;
+
+  if (category !== "All") {
+    results = results.filter((ad) => ad.category_name === category);
+  }
+
+  if (search) {
+    results = results.filter((ad) =>
+      [
+        ad.title,
+        ad.description,
+        ad.location,
+        ad.advertiser_name,
+        ad.category_name,
+      ]
+        .filter(Boolean)
+        .some((value) => value.toLowerCase().includes(search)),
+    );
+  }
+
+  if (sort === "price_asc")
+    results.sort((a, b) => (a.price || 0) - (b.price || 0));
+  else if (sort === "price_desc")
+    results.sort((a, b) => (b.price || 0) - (a.price || 0));
+  else if (sort === "rating")
+    results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  else if (sort === "popular")
+    results.sort((a, b) => (b.views || 0) - (a.views || 0));
+  else {
+    results.sort(
+      (a, b) =>
+        (b.is_sponsored ? 1 : 0) - (a.is_sponsored ? 1 : 0) ||
+        new Date(b.created_at) - new Date(a.created_at),
+    );
+  }
+
+  return results;
+}
+
 // Map Clerk user IDs (user_xxx) → Supabase profile UUIDs
 const clerkIdCache = new Map();
 
@@ -86,51 +131,38 @@ export async function getAds(filters = {}) {
     });
   }
 
+  const page = filters.page || 1;
+  const limit = filters.limit || 12;
+  const needsResilientFiltering =
+    Boolean(search) || (filters.category && filters.category !== "All");
+
   // Supabase query
   let query = supabaseAdmin
     .from("ads")
     .select("*, categories(name, slug)", { count: "exact" })
     .eq("status", "approved");
 
-  if (filters.category && filters.category !== "All") {
-    // Try categories table first, fall back to category_id mapping
-    const { data: cat } = await supabaseAdmin
-      .from("categories")
-      .select("id")
-      .eq("name", filters.category)
-      .maybeSingle();
-    if (cat) {
-      query = query.eq("category_id", cat.id);
-    } else {
-      // Map category name to category_id
-      const map = { Products: 1, Services: 2, Events: 3 };
-      const catId = map[filters.category];
-      if (catId) query = query.eq("category_id", catId);
-    }
-  }
-  if (search) {
-    query = query.or(
-      `title.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,advertiser_name.ilike.%${search}%`,
-    );
-  }
-  if (filters.sort === "price_asc")
+  if (needsResilientFiltering) {
+    query = query.order("created_at", { ascending: false });
+  } else if (filters.sort === "price_asc") {
     query = query.order("price", { ascending: true });
-  else if (filters.sort === "price_desc")
+  } else if (filters.sort === "price_desc") {
     query = query.order("price", { ascending: false });
-  else if (filters.sort === "rating")
+  } else if (filters.sort === "rating") {
     query = query.order("rating", { ascending: false });
-  else if (filters.sort === "popular")
+  } else if (filters.sort === "popular") {
     query = query.order("views", { ascending: false });
-  else
+  } else {
     query = query
       .order("sponsored", { ascending: false })
       .order("created_at", { ascending: false });
+  }
 
-  const page = filters.page || 1;
-  const limit = filters.limit || 12;
-  const from = (page - 1) * limit;
-  const to = from + limit - 1;
-  query = query.range(from, to);
+  if (!needsResilientFiltering) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    query = query.range(from, to);
+  }
 
   const { data, error, count } = await query;
   if (error) {
@@ -159,11 +191,25 @@ export async function getAds(filters = {}) {
     });
   }
 
+  if (needsResilientFiltering) {
+    const filteredAds = applyClientSideFilters(data || [], filters);
+    const total = filteredAds.length;
+    const from = (page - 1) * limit;
+    const ads = filteredAds.slice(from, from + limit);
+
+    return {
+      ads,
+      total,
+      page,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+    };
+  }
+
   return {
     ads: (data || []).map(normalizeAdRecord),
     total: count || 0,
     page,
-    totalPages: Math.ceil((count || 0) / limit),
+    totalPages: Math.max(1, Math.ceil((count || 0) / limit)),
   };
 }
 

@@ -15,7 +15,7 @@ import {
   getStats,
 } from "../lib/data";
 
-const CATEGORIES = ["All", "Products", "Services", "Events"];
+const CATEGORIES = ["All", "Products", "Services", "Events", "Other"];
 const PAGE_SIZE = 12;
 
 export default function HomePage({
