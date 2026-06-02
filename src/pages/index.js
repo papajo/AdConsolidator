@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Header from "../components/Header";
@@ -41,24 +41,42 @@ export default function HomePage({
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const visibleFeatured = useMemo(
+    () => (initialFeatured || featured || []).slice(0, 4),
+    [featured, initialFeatured],
+  );
 
   const fetchAds = useCallback(async (query, category, page) => {
     setIsLoading(true);
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      await new Promise((resolve) => setTimeout(resolve, 150));
+
+    try {
+      const params = new URLSearchParams({
+        q: query || "",
+        category: category || "All",
+        sort: "default",
+        page: String(page || 1),
+        limit: String(PAGE_SIZE),
+      });
+
+      const response = await fetch(`/api/ads?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ads: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setAds(result.ads || []);
+      setTotalAds(result.total || 0);
+      setCurrentPage(result.page || 1);
+      setTotalPages(result.totalPages || 1);
+    } catch (error) {
+      console.error("Failed to fetch homepage ads:", error);
+      setAds([]);
+      setTotalAds(0);
+      setCurrentPage(1);
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
     }
-    const result = await getAds({
-      query,
-      category,
-      sort: "default",
-      page,
-      limit: PAGE_SIZE,
-    });
-    setAds(result.ads);
-    setTotalAds(result.total);
-    setCurrentPage(result.page);
-    setTotalPages(result.totalPages);
-    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -311,7 +329,7 @@ export default function HomePage({
           </div>
 
           {/* ─── Featured Row ─── */}
-          {featured.length > 0 &&
+          {visibleFeatured.length > 0 &&
             searchQuery === "" &&
             activeCategory === "All" && (
               <div className="mb-6">
@@ -331,7 +349,7 @@ export default function HomePage({
                   </span>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
-                  {featured.map((ad, index) => (
+                  {visibleFeatured.map((ad, index) => (
                     <AdCard
                       key={ad.id}
                       ad={ad}
