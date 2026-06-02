@@ -30,7 +30,7 @@ export default function AdCard({ ad, onClick, index }) {
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      className="group flex h-full min-h-[268px] flex-col overflow-hidden rounded-xl border border-surface-200/70 bg-white shadow-sm transition-all duration-200 cursor-pointer opacity-0 animate-slide-up hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:ring-offset-2 focus:ring-offset-surface-50"
+      className="group flex h-full min-h-[292px] flex-col rounded-xl border border-surface-200/70 bg-white shadow-sm transition-all duration-200 cursor-pointer opacity-0 animate-slide-up hover:-translate-y-0.5 hover:shadow-md sm:min-h-[268px] focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:ring-offset-2 focus:ring-offset-surface-50"
       style={{ animationDelay: `${delay}s`, animationFillMode: "forwards" }}
     >
       {/* Color strip */}
@@ -48,14 +48,14 @@ export default function AdCard({ ad, onClick, index }) {
 
       <div className="flex h-full flex-col gap-3 p-4">
         {/* Top badge row: category + sponsored */}
-        <div className="flex min-h-[24px] items-start justify-between gap-2">
+        <div className="flex min-h-[24px] flex-wrap items-start justify-between gap-2">
           <span
             className={`text-[11px] font-medium px-2.5 py-1 rounded-full border leading-none ${tagColors[category] || tagColors.Other}`}
           >
             {category}
           </span>
           {ad.is_sponsored && (
-            <span className="flex items-center gap-1 text-[10px] text-amber-500 font-normal">
+            <span className="flex shrink-0 items-center gap-1 text-[10px] font-normal text-amber-500">
               <svg
                 className="w-2.5 h-2.5"
                 fill="currentColor"
@@ -82,9 +82,9 @@ export default function AdCard({ ad, onClick, index }) {
         <div className="flex-1 min-h-0" />
 
         {/* Footer metadata */}
-        <div className="mt-auto flex min-h-[44px] items-center justify-between border-t border-surface-100 pt-3">
+        <div className="mt-auto flex min-h-[44px] flex-col gap-2 border-t border-surface-100 pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
           {/* Left: date */}
-          <div className="flex min-w-0 items-center gap-1.5 text-xs text-surface-400">
+          <div className="flex min-w-0 items-center gap-1.5 text-[11px] text-surface-400 sm:text-xs">
             <svg
               className="w-3.5 h-3.5 shrink-0"
               fill="none"
@@ -102,8 +102,8 @@ export default function AdCard({ ad, onClick, index }) {
           </div>
 
           {/* Right group: views · rating · location */}
-          <div className="flex min-w-0 items-center gap-2.5">
-            <div className="flex items-center gap-1 text-xs text-surface-400">
+          <div className="flex w-full min-w-0 items-center justify-between gap-2 text-[11px] sm:w-auto sm:justify-start sm:gap-2.5 sm:text-xs">
+            <div className="flex items-center gap-1 text-inherit text-surface-400">
               <svg
                 className="w-3.5 h-3.5 shrink-0"
                 fill="none"
@@ -128,7 +128,7 @@ export default function AdCard({ ad, onClick, index }) {
 
             <span className="text-surface-200">·</span>
 
-            <div className="flex items-center gap-1 text-xs">
+            <div className="flex items-center gap-1 text-inherit">
               <svg
                 className="w-3 h-3 text-amber-400 shrink-0"
                 fill="currentColor"
@@ -145,7 +145,7 @@ export default function AdCard({ ad, onClick, index }) {
               <>
                 <span className="text-surface-200">·</span>
                 <span
-                  className="max-w-[72px] truncate text-xs text-surface-400"
+                  className="max-w-[96px] truncate text-inherit text-surface-400 sm:max-w-[72px]"
                   title={ad.location}
                 >
                   {ad.location}
