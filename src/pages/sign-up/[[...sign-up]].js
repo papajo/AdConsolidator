@@ -3,6 +3,9 @@ import Head from 'next/head';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
+const IS_DEV = (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '').startsWith('pk_test_');
+const TEST_EMAIL = 'test@test.com';
+
 export default function SignUpPage() {
   return (
     <>
@@ -16,11 +19,24 @@ export default function SignUpPage() {
 
         <main className="flex-1 flex items-center justify-center px-4 py-16">
           <div className="w-full max-w-md">
+            {IS_DEV && (
+              <div className="glass-card rounded-2xl p-4 mb-6 border border-brand-200 bg-brand-50/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs font-semibold text-surface-700 uppercase tracking-wider">Development Mode</span>
+                </div>
+                <p className="text-xs text-surface-600">
+                  Use <strong>{TEST_EMAIL}</strong> to quickly create a test account.
+                  Clerk will send a verification code to that email.
+                </p>
+              </div>
+            )}
+
             <div className="text-center mb-8">
               <h1 className="font-display text-3xl text-surface-900 mb-2">Create your account</h1>
               <p className="text-surface-500 text-sm">Join XYZT Ad Consolidator today</p>
             </div>
-            <SignUp 
+            <SignUp
               appearance={{
                 elements: {
                   formButtonPrimary: 'btn-primary',

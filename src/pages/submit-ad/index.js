@@ -35,6 +35,21 @@ async function compressImage(file) {
   });
 }
 
+const IS_DEV = (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '').startsWith('pk_test_');
+
+const TEST_AD_DATA = {
+  title: "Premium XYZT Marketing Bundle",
+  category: "Services",
+  location: "Global",
+  price: "$299/month",
+  description: "Complete XYZT marketing solution for the 123456 audience. Includes SEO optimization, targeted ad campaigns, social media management, and monthly performance reports with actionable insights. Perfect for businesses looking to expand their reach in the XYZT ecosystem.",
+  contactName: "John Doe",
+  contactEmail: "john@xyztmarketing.test",
+  contactPhone: "+1-555-0123",
+  website: "https://xyztmarketing.test",
+  tags: "marketing, seo, social-media, analytics, enterprise",
+};
+
 export default function SubmitAd() {
   const { isSignedIn, user } = useUser();
   const [step, setStep] = useState(1);
@@ -44,6 +59,22 @@ export default function SubmitAd() {
     title: '', category: '', location: '', price: '', description: '', contactName: '', contactEmail: '', contactPhone: '', website: '', tags: '', images: [],
   });
   const [submitted, setSubmitted] = useState(false);
+
+  const fillTestData = () => {
+    setForm({
+      ...form,
+      title: TEST_AD_DATA.title,
+      category: TEST_AD_DATA.category,
+      location: TEST_AD_DATA.location,
+      price: TEST_AD_DATA.price,
+      description: TEST_AD_DATA.description,
+      contactName: TEST_AD_DATA.contactName,
+      contactEmail: TEST_AD_DATA.contactEmail,
+      contactPhone: TEST_AD_DATA.contactPhone,
+      website: TEST_AD_DATA.website,
+      tags: TEST_AD_DATA.tags,
+    });
+  };
 
   if (!isSignedIn) {
     return (
@@ -205,6 +236,24 @@ export default function SubmitAd() {
         <main className="flex-1 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
           <h1 className="font-display text-4xl md:text-5xl text-surface-900 mb-2">Submit your ad</h1>
           <p className="text-surface-500 mb-10">Reach the 123456 audience with your XYZT advertisement.</p>
+
+          {IS_DEV && (
+            <div className="glass-card rounded-2xl p-4 mb-6 border border-brand-200 bg-brand-50/50 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs text-surface-600">
+                  <strong>Testing:</strong> Click to pre-fill sample ad data
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={fillTestData}
+                className="text-xs font-medium text-brand-600 hover:text-brand-700 bg-white px-3 py-1.5 rounded-lg border border-brand-200"
+              >
+                Fill test data
+              </button>
+            </div>
+          )}
 
           {/* Progress bar */}
           <div className="flex items-center gap-3 mb-10">

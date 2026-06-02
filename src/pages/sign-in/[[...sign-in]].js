@@ -3,6 +3,9 @@ import Head from 'next/head';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
+const IS_DEV = (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '').startsWith('pk_test_');
+const TEST_EMAIL = 'test@test.com';
+
 export default function SignInPage() {
   return (
     <>
@@ -16,11 +19,36 @@ export default function SignInPage() {
 
         <main className="flex-1 flex items-center justify-center px-4 py-16">
           <div className="w-full max-w-md">
+            {IS_DEV && (
+              <div className="glass-card rounded-2xl p-4 mb-6 border border-brand-200 bg-brand-50/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs font-semibold text-surface-700 uppercase tracking-wider">Development Mode</span>
+                </div>
+                <p className="text-xs text-surface-600 mb-2">
+                  Use <strong>{TEST_EMAIL}</strong> with any password — Clerk will send a verification code to that email.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const input = document.querySelector('input[name=identifier]');
+                    if (input) {
+                      input.value = TEST_EMAIL;
+                      input.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                  }}
+                  className="text-xs font-medium text-brand-600 hover:text-brand-700 bg-white px-3 py-1.5 rounded-lg border border-brand-200"
+                >
+                  Pre-fill test email
+                </button>
+              </div>
+            )}
+
             <div className="text-center mb-8">
               <h1 className="font-display text-3xl text-surface-900 mb-2">Welcome back</h1>
               <p className="text-surface-500 text-sm">Sign in to your XYZT Ad Consolidator account</p>
             </div>
-            <SignIn 
+            <SignIn
               appearance={{
                 elements: {
                   formButtonPrimary: 'btn-primary',
