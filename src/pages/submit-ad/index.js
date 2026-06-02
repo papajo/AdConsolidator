@@ -41,7 +41,7 @@ const TEST_AD_DATA = {
   title: "Premium XYZT Marketing Bundle",
   category: "Services",
   location: "Global",
-  price: "$299/month",
+  price: "299",
   description: "Complete XYZT marketing solution for the 123456 audience. Includes SEO optimization, targeted ad campaigns, social media management, and monthly performance reports with actionable insights. Perfect for businesses looking to expand their reach in the XYZT ecosystem.",
   contactName: "John Doe",
   contactEmail: "john@xyztmarketing.test",

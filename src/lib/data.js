@@ -278,12 +278,22 @@ export async function createAd(adData) {
 
   // Strip fields that may not exist in the database schema
   // (only pass columns defined in both supabase-*.sql schemas)
-  const { category, category_name, contactName, ...safeData } = adData;
+  // Also sanitize price: extract numeric value from strings like "$299/month"
+  let sanitizedPrice = adData.price;
+  if (typeof sanitizedPrice === 'string' && sanitizedPrice.length > 0) {
+    const match = sanitizedPrice.replace(/,/g, '').match(/[\d]+(?:\.[\d]+)?/);
+    sanitizedPrice = match ? parseFloat(match[0]) : null;
+  } else if (!sanitizedPrice) {
+    sanitizedPrice = null;
+  }
+
+  const { category, category_name, contactName, price, ...safeData } = adData;
 
   const { data, error } = await supabaseAdmin
     .from('ads')
     .insert({
       ...safeData,
+      price: sanitizedPrice,
       user_id: profileId || null,
     })
     .select()
