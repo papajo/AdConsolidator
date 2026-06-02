@@ -247,17 +247,38 @@ export async function createAd(adData) {
   }
 
   // Resolve Clerk ID → Supabase profile UUID
+  let profileId = null;
   const rawClerkId = adData.user_id && typeof adData.user_id === 'string' && adData.user_id.startsWith('user_')
     ? adData.user_id
     : null;
-  const profileId = rawClerkId ? (await resolveProfileId(rawClerkId)) : null;
+
+  if (rawClerkId) {
+    profileId = await resolveProfileId(rawClerkId);
+
+    // If no profile exists yet (Clerk webhook hasn't synced),
+    // create one automatically so the ad links to a real profile
+    if (!profileId) {
+      const { data: newProfile } = await supabaseAdmin
+        .from('profiles')
+        .upsert({
+          clerk_id: rawClerkId,
+          email: adData.contact_email || null,
+        }, { onConflict: 'clerk_id' })
+        .select()
+        .single();
+
+      if (newProfile?.id) {
+        profileId = newProfile.id;
+        clearProfileCache();
+      }
+    }
+  }
 
   const { data, error } = await supabaseAdmin
     .from('ads')
     .insert({
       ...adData,
       user_id: profileId || null,
-      clerk_id: rawClerkId, // always store the raw Clerk ID as fallback lookup
     })
     .select()
     .single();
@@ -272,7 +293,7 @@ export async function createAd(adData) {
 export async function getUserAds(userId) {
   if (!isSupabaseConfigured()) return MOCK_ADS.filter(a => a.user_id === userId);
 
-  // Try resolving Clerk ID → Supabase profile UUID first
+  // Resolve Clerk ID → Supabase profile UUID
   const profileResult = await supabaseAdmin
     .from('profiles')
     .select('id')
@@ -280,13 +301,13 @@ export async function getUserAds(userId) {
     .maybeSingle();
 
   const profileId = profileResult.data?.id;
+  if (!profileId) return [];
 
-  // Query by profile UUID if available, otherwise fall back to raw clerk_id
-  const query = profileId
-    ? supabaseAdmin.from('ads').select('*, categories(name, slug)').eq('user_id', profileId)
-    : supabaseAdmin.from('ads').select('*, categories(name, slug)').eq('clerk_id', userId);
-
-  const { data } = await query.order('created_at', { ascending: false });
+  const { data } = await supabaseAdmin
+    .from('ads')
+    .select('*, categories(name, slug)')
+    .eq('user_id', profileId)
+    .order('created_at', { ascending: false });
 
   return data || [];
 }
