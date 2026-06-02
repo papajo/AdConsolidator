@@ -37,6 +37,8 @@ export function clearProfileCache() { clerkIdCache.clear(); }
 const SYNTHETIC_REVIEWS = [];
 
 function isSupabaseConfigured() {
+  // Force synthetic data mode for demo/preview
+  if (process.env.NEXT_PUBLIC_USE_SYNTHETIC_DATA === 'true') return false;
   return !!process.env.NEXT_PUBLIC_SUPABASE_URL;
 }
 
@@ -93,6 +95,21 @@ export async function getAds(filters = {}) {
 
   const { data, error, count } = await query;
   if (error) { console.error('Supabase getAds error:', JSON.stringify(error)); return { ads: [], total: 0, page, totalPages: 0 }; }
+
+  // If the database exists but is empty (no ads at all), show synthetic data
+  // so the marketplace always looks populated. Only falls back when there's
+  // no active search/filter so real queries still work correctly.
+  if (!search && (!filters.category || filters.category === 'All') && (!data || data.length === 0) && (!count || count === 0)) {
+    console.log('Supabase returned 0 total ads — falling back to synthetic data');
+    return querySyntheticAds({
+      query: search,
+      category: filters.category,
+      sort: filters.sort,
+      page,
+      limit,
+    });
+  }
+
   return { ads: data || [], total: count || 0, page, totalPages: Math.ceil((count || 0) / limit) };
 }
 
@@ -127,7 +144,11 @@ export async function getFeaturedAds() {
     .limit(6);
 
   if (error) return [];
-  return data || [];
+  if (!data || data.length === 0) {
+    console.log('Supabase returned 0 featured ads — falling back to synthetic');
+    return generateFeatured();
+  }
+  return data;
 }
 
 // ============================================
@@ -347,6 +368,12 @@ export async function getStats() {
     supabaseAdmin.from('reviews').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('ads').select('rating, views'),
   ]);
+
+  // If the ads table is empty or doesn't exist, fall back to synthetic stats
+  if ((adCount || 0) === 0) {
+    console.log('Supabase returned 0 total ads for stats — falling back to synthetic');
+    return generateSyntheticStats();
+  }
 
   const avgRating = adRatingData?.length
     ? (adRatingData.reduce((sum, a) => sum + (a.rating || 0), 0) / adRatingData.length).toFixed(1)
