@@ -93,6 +93,7 @@ create table if not exists public.alerts (
 
 -- Migration-safe: add clerk_id fallback column (for Clerk ID lookup when profile doesn't exist yet)
 alter table public.ads add column if not exists clerk_id text;
+alter table public.ads add column if not exists review_note text;
 
 -- Indexes for performance
 create index idx_ads_status on public.ads(status);

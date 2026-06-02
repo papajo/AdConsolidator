@@ -153,12 +153,13 @@ export async function getAdById(id) {
     .from('ads')
     .select('*, categories(name, slug)')
     .eq('id', id)
-    .eq('status', 'approved')
     .maybeSingle();
 
   if (error || !data) return null;
-  // Increment views
-  await supabaseAdmin.from('ads').update({ views: (data.views || 0) + 1 }).eq('id', id);
+  // Increment views (only for approved/active ads)
+  if (data.status === 'approved' || data.status === 'active') {
+    await supabaseAdmin.from('ads').update({ views: (data.views || 0) + 1 }).eq('id', id);
+  }
   return data;
 }
 
@@ -340,6 +341,46 @@ export async function getUserAds(userId) {
     .order('created_at', { ascending: false });
 
   return data || [];
+}
+
+// ============================================
+// Admin: Review Workflow
+// ============================================
+
+export async function getPendingAds() {
+  if (!isSupabaseConfigured()) return [];
+
+  const { data, error } = await supabaseAdmin
+    .from('ads')
+    .select('*, categories(name, slug), profiles!ads_user_id_fkey(email, first_name, last_name)')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('getPendingAds error:', error);
+    return [];
+  }
+  return data || [];
+}
+
+export async function updateAdStatus(adId, status, reviewNote) {
+  if (!isSupabaseConfigured()) return { error: 'Supabase not configured' };
+
+  const updateData = { status };
+  if (reviewNote) updateData.review_note = reviewNote;
+
+  const { data, error } = await supabaseAdmin
+    .from('ads')
+    .update(updateData)
+    .eq('id', adId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('updateAdStatus error:', error);
+    return { error: error.message };
+  }
+  return { data };
 }
 
 // ============================================

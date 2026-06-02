@@ -27,8 +27,15 @@ export default function SignUpPage() {
                 </div>
                 <p className="text-xs text-surface-600">
                   Use <strong>{TEST_EMAIL}</strong> to quickly create a test account.
-                  Clerk will send a verification code to that email.
                 </p>
+                <div className="mt-2 flex items-start gap-1.5">
+                  <svg className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-xs text-amber-600">
+                    Clerk will send a <strong>verification email</strong>. Open it on <strong>this same browser</strong> to complete sign-up.
+                  </p>
+                </div>
               </div>
             )}
 

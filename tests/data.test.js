@@ -8,7 +8,7 @@ vi.mock('../src/lib/supabase', () => ({
   supabaseAdmin: { from: mockFrom },
 }));
 
-import { createAd, getUserAds, getAds, getFeaturedAds, clearProfileCache } from '../src/lib/data';
+import { createAd, getUserAds, getAds, getFeaturedAds, getPendingAds, updateAdStatus, clearProfileCache } from '../src/lib/data';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -278,5 +278,104 @@ describe('getFeaturedAds', () => {
     const ads = await getFeaturedAds();
     expect(ads).toHaveLength(1);
     expect(ads[0].is_sponsored).toBe(true);
+  });
+});
+
+describe('getPendingAds', () => {
+  it('returns pending ads with profile info', async () => {
+    const makeQuery = (resolveValue) => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => ({
+            then: vi.fn(r => Promise.resolve(r(resolveValue))),
+          })),
+        })),
+      })),
+    });
+
+    const pendingAd = {
+      id: 'pending-1',
+      title: 'Pending Ad',
+      status: 'pending',
+      profiles: { email: 'user@test.com', first_name: 'Test' },
+    };
+
+    mockFrom.mockImplementationOnce(() => makeQuery({ data: [pendingAd], error: null }));
+
+    const ads = await getPendingAds();
+    expect(ads).toHaveLength(1);
+    expect(ads[0].status).toBe('pending');
+    expect(ads[0].profiles.email).toBe('user@test.com');
+  });
+
+  it('returns empty array on error', async () => {
+    const makeQuery = (resolveValue) => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => ({
+            then: vi.fn(r => Promise.resolve(r(resolveValue))),
+          })),
+        })),
+      })),
+    });
+
+    mockFrom.mockImplementationOnce(() => makeQuery({ data: null, error: { message: 'DB error' } }));
+
+    const ads = await getPendingAds();
+    expect(ads).toEqual([]);
+  });
+});
+
+describe('updateAdStatus', () => {
+  it('updates ad status and returns the updated ad', async () => {
+    const updatedAd = { id: 'ad-1', title: 'Test', status: 'approved', review_note: null };
+
+    mockFrom.mockImplementationOnce(() => ({
+      update: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({ data: updatedAd, error: null }),
+          })),
+        })),
+      })),
+    }));
+
+    const result = await updateAdStatus('ad-1', 'approved');
+    expect(result.data.status).toBe('approved');
+  });
+
+  it('includes review_note when provided', async () => {
+    mockFrom.mockImplementationOnce(() => ({
+      update: vi.fn((data) => ({
+        eq: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({
+              data: { id: 'ad-1', status: 'rejected', review_note: data.review_note },
+              error: null,
+            }),
+          })),
+        })),
+      })),
+    }));
+
+    const result = await updateAdStatus('ad-1', 'rejected', 'Spam');
+    expect(result.data.status).toBe('rejected');
+    expect(result.data.review_note).toBe('Spam');
+  });
+
+  it('returns error object on failure', async () => {
+    mockFrom.mockImplementationOnce(() => ({
+      update: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn().mockResolvedValue({ data: null, error: { message: 'Permission denied' } }),
+          })),
+        })),
+      })),
+    }));
+
+    const result = await updateAdStatus('ad-1', 'approved');
+    expect(result.error).toBeDefined();
+    expect(result.error).toContain('Permission denied');
   });
 });

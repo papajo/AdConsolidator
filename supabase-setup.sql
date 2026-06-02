@@ -102,6 +102,7 @@ alter table public.ads add column if not exists contact_email text;
 alter table public.ads add column if not exists contact_phone text;
 alter table public.ads add column if not exists contact_website text;
 alter table public.ads add column if not exists clerk_id text;
+alter table public.ads add column if not exists review_note text;
 
 alter table public.ads enable row level security;
 

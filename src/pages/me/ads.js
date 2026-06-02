@@ -102,6 +102,11 @@ export default function MyAds() {
                         </span>
                       </div>
                       <p className="text-sm text-surface-500 line-clamp-1 mb-3">{ad.description}</p>
+                      {ad.review_note && (
+                        <p className="text-xs text-surface-400 italic mb-2">
+                          Review note: {ad.review_note}
+                        </p>
+                      )}
                       <div className="flex items-center gap-4 text-xs text-surface-400">
                         <span>{ad.location || 'Global'}</span>
                         <span>{ad.views || 0} views</span>
@@ -111,7 +116,9 @@ export default function MyAds() {
                     </div>
                     <div className="flex gap-2 ml-4">
                       <Link href={`/?ad=${ad.id}`} className="text-xs text-brand-600 hover:text-brand-700 font-medium">View</Link>
-                      <button className="text-xs text-surface-500 hover:text-surface-700 font-medium">Edit</button>
+                      {ad.status === 'pending' && (
+                        <span className="text-xs text-amber-500 font-medium">Awaiting review</span>
+                      )}
                     </div>
                   </div>
                 </div>
