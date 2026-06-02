@@ -20,24 +20,28 @@ export default function Header() {
           </Link>
 
           {/* Nav + auth (desktop) */}
-          <nav className="hidden md:flex items-center gap-5">
-            <Link href="/" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Browse</Link>
-            <Link href="/pricing" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Pricing</Link>
-            <Link href="/about" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">About</Link>
-            <Link href="/submit-ad" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Submit Ad</Link>
-            {isSignedIn ? (
-              <div className="flex items-center gap-3 border-l border-surface-200 pl-4">
-                <Link href="/me/ads" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">My Ads</Link>
-                <span className="text-sm text-surface-500">{user?.firstName || 'User'}</span>
-                <SignOutButton>
-                  <button className="btn-secondary text-xs !py-1.5 !px-3">Sign Out</button>
-                </SignOutButton>
-              </div>
-            ) : (
-              <SignInButton mode="modal">
-                <button className="btn-primary text-xs !py-1.5 !px-4">Sign In</button>
-              </SignInButton>
-            )}
+          <nav className="hidden md:flex items-center">
+            <div className="flex items-center gap-4 mr-5 pr-5 border-r border-surface-200">
+              <Link href="/" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Browse</Link>
+              <Link href="/pricing" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Pricing</Link>
+              <Link href="/about" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">About</Link>
+              <Link href="/submit-ad" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">Submit Ad</Link>
+            </div>
+            <div className="flex items-center gap-3">
+              {isSignedIn ? (
+                <>
+                  <Link href="/me/ads" className="text-sm font-medium text-surface-600 hover:text-brand-600 transition-colors">My Ads</Link>
+                  <span className="text-sm text-surface-400">{user?.firstName || 'User'}</span>
+                  <SignOutButton>
+                    <button className="btn-secondary text-xs !py-1.5 !px-3">Sign Out</button>
+                  </SignOutButton>
+                </>
+              ) : (
+                <SignInButton mode="modal">
+                  <button className="btn-primary text-xs !py-1.5 !px-4">Sign In</button>
+                </SignInButton>
+              )}
+            </div>
           </nav>
 
           {/* Mobile: sign in / menu */}

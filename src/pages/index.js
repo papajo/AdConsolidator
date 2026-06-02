@@ -106,112 +106,114 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
       <div className="min-h-screen flex flex-col">
         <Header />
 
-        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-10 w-full">
-          {/* ─── Compact Toolbar: categories + search + stats ─── */}
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            {/* Category pills */}
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-none">
-              {CATEGORIES.map((cat) => {
-                const isActive = cat === activeCategory;
-                const dotColors = {
-                  Products: 'bg-emerald-400',
-                  Services: 'bg-blue-400',
-                  Events: 'bg-purple-400',
-                };
-                return (
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-14 w-full">
+          {/* ─── Unified Filter & Status Bar ─── */}
+          <div className="flex flex-wrap items-center gap-3 mb-5">
+            {/* Filter group: category pills + search */}
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="flex gap-1 overflow-x-auto scrollbar-none">
+                {CATEGORIES.map((cat) => {
+                  const isActive = cat === activeCategory;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => handleCategoryChange(cat)}
+                      className={`shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 ${
+                        isActive
+                          ? 'bg-white border-surface-300 shadow-sm text-surface-900'
+                          : 'bg-white/60 border-transparent text-surface-500 hover:bg-white/80 hover:border-surface-200'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Search */}
+              <div className="relative min-w-[140px] max-w-[200px]">
+                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search ads..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full pl-8 pr-3 py-1.5 bg-white/80 border border-surface-200 rounded-lg text-xs text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-300 transition-all"
+                />
+                {searchQuery && (
                   <button
-                    key={cat}
-                    onClick={() => handleCategoryChange(cat)}
-                    className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 ${
-                      isActive
-                        ? 'bg-white border-surface-300 shadow-sm text-surface-900'
-                        : 'bg-white/60 border-transparent text-surface-500 hover:bg-white/80 hover:border-surface-200'
-                    }`}
+                    onClick={() => handleSearch('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600"
                   >
-                    {!isActive && cat !== 'All' && <span className={`w-1.5 h-1.5 rounded-full ${dotColors[cat] || 'bg-surface-300'}`} />}
-                    {cat}
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                   </button>
-                );
-              })}
+                )}
+              </div>
             </div>
 
-            {/* Search */}
-            <div className="relative flex-1 min-w-[160px] max-w-xs">
-              <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 bg-white/80 border border-surface-200 rounded-lg text-xs text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-300 transition-all"
-              />
-              {searchQuery && (
+            {/* Status group: stats + action buttons */}
+            <div className="flex items-center gap-3 shrink-0">
+              {stats && (
+                <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 text-xs text-surface-500 bg-white/70 rounded-lg border border-surface-200/60">
+                  <span><strong className="text-surface-700">{stats.totalAds}</strong> listings</span>
+                  <span className="w-px h-3 bg-surface-300/40" />
+                  <span><strong className="text-surface-700">{stats.avgRating}</strong> ★</span>
+                  <span className="w-px h-3 bg-surface-300/40" />
+                  <span><strong className="text-surface-700">{(stats.totalViews || 0).toLocaleString()}</strong> views</span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-1.5">
                 <button
-                  onClick={() => handleSearch('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600"
+                  onClick={() => setShowSubmitModal(true)}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors"
+                  title="New Ad"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
                 </button>
-              )}
-            </div>
-
-            {/* Compact stats */}
-            {stats && (
-              <div className="hidden sm:flex items-center gap-3 text-xs text-surface-500 ml-auto shrink-0">
-                <span><strong className="text-surface-700">{stats.totalAds}</strong> listings</span>
-                <span className="w-px h-3 bg-surface-300/60" />
-                <span><strong className="text-surface-700">{stats.avgRating}</strong> ★</span>
-                <span className="w-px h-3 bg-surface-300/60" />
-                <span><strong className="text-surface-700">{(stats.totalViews || 0).toLocaleString()}</strong> views</span>
+                <button
+                  onClick={() => setShowNotifications(true)}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-surface-200 text-surface-500 hover:bg-surface-50 transition-colors"
+                  title="Alerts"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                </button>
               </div>
-            )}
-
-            {/* Action buttons as icons */}
-            <button
-              onClick={() => setShowSubmitModal(true)}
-              className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors"
-              title="New Ad"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-            <button
-              onClick={() => setShowNotifications(true)}
-              className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-white border border-surface-200 text-surface-500 hover:bg-surface-50 transition-colors"
-              title="Alerts"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-            </button>
+            </div>
           </div>
 
           {/* ─── Featured Row ─── */}
           {featured.length > 0 && searchQuery === '' && activeCategory === 'All' && (
-            <div className="mb-4">
-              <div className="flex items-center gap-1.5 mb-2">
-                <svg className="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
-                <span className="text-xs font-medium text-surface-600">Featured</span>
+                <span className="text-sm font-semibold text-surface-800">Featured</span>
+                <span className="text-[11px] text-surface-400">Scroll for more →</span>
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 snap-x snap-mandatory scrollbar-none">
+              <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory scrollbar-none">
                 {featured.map((ad) => (
                   <div key={ad.id} className="snap-start shrink-0 w-64" onClick={() => handleAdClick(ad)}>
                     <AdCard ad={ad} onClick={handleAdClick} index={0} />
                   </div>
                 ))}
+                {/* Scroll affordance fade */}
+                <div className="shrink-0 w-8 bg-gradient-to-l from-transparent to-transparent pointer-events-none" />
               </div>
             </div>
           )}
 
           {/* ─── Result count ─── */}
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-4">
             <p className="text-[11px] text-surface-400">
               {isLoading
                 ? 'Loading...'
@@ -224,7 +226,7 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
 
           {/* ─── Ad Grid ─── */}
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="bg-white rounded-xl border border-surface-200/60 shadow-sm overflow-hidden animate-pulse">
                   <div className="h-1.5 bg-surface-100 rounded-t-xl" />
@@ -242,35 +244,35 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
               ))}
             </div>
           ) : ads.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {ads.map((ad, index) => (
                 <AdCard key={ad.id} ad={ad} onClick={handleAdClick} index={index} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-20">
-              <div className="w-14 h-14 rounded-full bg-white/80 border border-surface-200 flex items-center justify-center mx-auto mb-4 shadow-sm">
-                <svg className="w-6 h-6 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center py-24">
+              <div className="w-12 h-12 rounded-full bg-white/80 border border-surface-200 flex items-center justify-center mx-auto mb-4 shadow-sm">
+                <svg className="w-5 h-5 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
-              <h3 className="font-display text-lg text-surface-700 mb-1">No ads found</h3>
+              <h3 className="font-display text-base text-surface-700 mb-1">No ads found</h3>
               <p className="text-sm text-surface-500">Try a different search or category.</p>
             </div>
           )}
 
           {/* ─── Pagination ─── */}
           {totalPages > 1 && (
-            <nav className="flex items-center justify-center gap-1.5 mt-8" aria-label="Pagination">
+            <nav className="flex items-center justify-center gap-2 mt-10 pb-2" aria-label="Pagination">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="flex items-center gap-1 px-3 py-1.5 text-xs text-surface-600 rounded-lg hover:bg-surface-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-surface-600 rounded-lg hover:bg-surface-100 disabled:opacity-25 disabled:cursor-not-allowed transition-all"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                Prev
+                Previous
               </button>
 
               {getPageNumbers().map((p, i) =>
@@ -280,7 +282,7 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
                   <button
                     key={p}
                     onClick={() => goToPage(p)}
-                    className={`min-w-[32px] h-8 text-xs font-medium rounded-lg transition-all ${
+                    className={`min-w-[36px] h-9 text-sm font-medium rounded-lg transition-all ${
                       p === currentPage
                         ? 'bg-brand-500 text-white shadow-sm'
                         : 'text-surface-600 hover:bg-surface-100'
@@ -294,7 +296,7 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-1 px-3 py-1.5 text-xs text-surface-600 rounded-lg hover:bg-surface-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-surface-600 rounded-lg hover:bg-surface-100 disabled:opacity-25 disabled:cursor-not-allowed transition-all"
               >
                 Next
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
