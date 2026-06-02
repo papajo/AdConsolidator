@@ -30,7 +30,7 @@ export default function AdCard({ ad, onClick, index }) {
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      className="group flex h-full min-h-[248px] flex-col rounded-xl border border-surface-200/70 bg-white shadow-sm transition-all duration-200 cursor-pointer opacity-0 animate-slide-up hover:-translate-y-0.5 hover:shadow-md sm:min-h-[232px] focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:ring-offset-2 focus:ring-offset-surface-50"
+      className="group flex h-full min-h-[248px] flex-col rounded-xl border border-surface-200/70 bg-white shadow-sm transition-all duration-200 cursor-pointer opacity-0 animate-slide-up hover:-translate-y-0.5 hover:shadow-md sm:min-h-[252px] lg:min-h-[260px] focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:ring-offset-2 focus:ring-offset-surface-50"
       style={{ animationDelay: `${delay}s`, animationFillMode: "forwards" }}
     >
       {/* Color strip */}
