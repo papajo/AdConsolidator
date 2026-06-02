@@ -113,9 +113,9 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
       </Head>
 
       <div className="min-h-screen flex flex-col">
-        <Header onSearch={handleSearch} onCategoryChange={handleCategoryChange} activeCategory={activeCategory} />
+        <Header />
 
-        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16 w-full">
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-16 w-full">
           {/* ─── Board Header ─── */}
           <div className="flex items-center justify-between mb-8">
             <div>
