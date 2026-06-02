@@ -17,10 +17,8 @@
   }
 
   body {
-    @apply font-body text-surface-900 bg-surface-50;
-    background-image: 
-      radial-gradient(ellipse at 20% 50%, rgba(241, 145, 50, 0.04) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, rgba(185, 66, 9, 0.03) 0%, transparent 50%);
+    @apply font-body text-surface-900;
+    background: linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 50%, #e0f2fe 100%);
     min-height: 100vh;
   }
 
@@ -101,6 +99,14 @@
 
   .section-title {
     @apply font-display text-3xl md:text-4xl text-surface-900 leading-tight;
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 
   .card-grid {

@@ -9,6 +9,8 @@ import NotificationPanel from '../components/NotificationPanel';
 import Footer from '../components/Footer';
 import { getAds, getFeaturedAds, getAdById, getReviewsByAdId, getStats } from '../lib/data';
 
+const CATEGORIES = ['All', 'Products', 'Services', 'Events'];
+
 export default function HomePage({ initialAds, initialStats, initialAd, initialAdReviews, initialFeatured }) {
   const router = useRouter();
   const [ads, setAds] = useState(initialAds.ads);
@@ -19,23 +21,22 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
   const [selectedAdReviews, setSelectedAdReviews] = useState(initialAdReviews || []);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('default');
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchAds = useCallback(async (query, category, sort) => {
+  const fetchAds = useCallback(async (query, category) => {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const result = await getAds({ query, category, sort });
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const result = await getAds({ query, category, sort: 'default' });
     setAds(result.ads);
     setTotalAds(result.total);
     setIsLoading(false);
   }, []);
 
   useEffect(() => {
-    fetchAds(searchQuery, activeCategory, sortBy);
-  }, [searchQuery, activeCategory, sortBy, fetchAds]);
+    fetchAds(searchQuery, activeCategory);
+  }, [searchQuery, activeCategory, fetchAds]);
 
   // Read ?ad=UUID from URL and open the detail modal
   useEffect(() => {
@@ -64,12 +65,14 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
     }
   };
 
-  // ─── How It Works steps ───
-  const steps = [
-    { icon: '🔍', title: 'Browse Listings', desc: 'Explore advertisements across Products, Services, and Events — all in one place.' },
-    { icon: '📋', title: 'Post Your Ad', desc: 'Submit your own advertisement in minutes. Reach the XYZT-123456 audience instantly.' },
-    { icon: '📈', title: 'Grow Your Reach', desc: 'Track views, get reviews, and upgrade to sponsored spots for maximum visibility.' },
-  ];
+  // Count ads per category (from current results)
+  const countByCategory = (cat) => {
+    if (cat === 'All') return totalAds;
+    return ads.filter(a => {
+      const name = a.category_name || a.category || a.categories?.name;
+      return name === cat;
+    }).length;
+  };
 
   return (
     <>
@@ -81,146 +84,165 @@ export default function HomePage({ initialAds, initialStats, initialAd, initialA
       <div className="min-h-screen flex flex-col">
         <Header onSearch={handleSearch} onCategoryChange={handleCategoryChange} activeCategory={activeCategory} />
 
-        {/* ──────── HERO ──────── */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
-            <div className="text-center max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 bg-brand-100 text-brand-700 text-xs font-semibold px-3 py-1 rounded-full mb-4">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
-                Connecting the XYZT-123456 ecosystem
-              </div>
-              <h1 className="font-display text-5xl md:text-6xl text-surface-900 mb-4 leading-tight">
-                Discover <span className="gradient-text">XYZT</span> Advertisements
-              </h1>
-              <p className="text-surface-600 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
-                Your central hub for publishing and finding advertisements related to XYZT → 123456.
-                Browse, search, and connect with advertisers — all in one marketplace.
-              </p>
-              <div className="flex items-center justify-center gap-3 flex-wrap">
-                <button onClick={() => setShowSubmitModal(true)} className="btn-primary">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Submit Your Ad
-                </button>
-                {stats && (
-                  <div className="flex items-center gap-6 px-6 py-2">
-                    <div className="text-center">
-                      <span className="font-display text-2xl text-surface-900">{stats.totalAds}</span>
-                      <p className="text-xs text-surface-500">Listings</p>
-                    </div>
-                    <div className="w-px h-8 bg-surface-200" />
-                    <div className="text-center">
-                      <span className="font-display text-2xl text-surface-900">{stats.avgRating || '—'}</span>
-                      <p className="text-xs text-surface-500">Avg Rating</p>
-                    </div>
-                    <div className="w-px h-8 bg-surface-200" />
-                    <div className="text-center">
-                      <span className="font-display text-2xl text-surface-900">{stats.totalViews?.toLocaleString() || '—'}</span>
-                      <p className="text-xs text-surface-500">Views</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="absolute -top-24 -right-24 w-96 h-96 bg-brand-200/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl" />
-        </section>
-
-        {/* ──────── HOW IT WORKS ──────── */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-          <h2 className="font-display text-2xl text-surface-900 text-center mb-10">How it Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {steps.map((s, i) => (
-              <div key={i} className="text-center">
-                <div className="text-4xl mb-3">{s.icon}</div>
-                <h3 className="font-display text-lg text-surface-900 mb-1">{s.title}</h3>
-                <p className="text-sm text-surface-500 leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ──────── FEATURED ADS ──────── */}
-        {featured.length > 0 && (
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="font-display text-2xl text-surface-900">Featured</h2>
-                <p className="text-xs text-surface-500 mt-0.5">Sponsored and top advertisements</p>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-surface-400">
-                <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
-                Sponsored
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
-              {featured.map((ad, i) => (
-                <AdCard key={ad.id} ad={ad} onClick={handleAdClick} index={i} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ──────── ALL ADS ──────── */}
-        <section className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-          <div className="flex items-end justify-between mb-4">
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16 w-full">
+          {/* ─── Board Header ─── */}
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="font-display text-2xl text-surface-900">Browse All</h2>
-              <p className="text-xs text-surface-500 mt-0.5">
-                {isLoading
-                  ? 'Searching...'
-                  : `${ads.length} of ${totalAds} advertisements`}
-              </p>
+              <h1 className="font-display text-3xl text-surface-900">Ad Marketplace</h1>
+              <p className="text-sm text-surface-500 mt-1">Browse listings across Products, Services, and Events</p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-surface-400">Sort:</span>
-              <select
-                className="text-sm border border-surface-200 rounded-lg px-3 py-1.5 bg-white text-surface-700 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="default">Featured</option>
-                <option value="newest">Newest</option>
-                <option value="rating">Top Rated</option>
-                <option value="popular">Most Popular</option>
-              </select>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setShowNotifications(true)} className="btn-secondary text-sm !px-3 !py-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                Alerts
+              </button>
+              <button onClick={() => setShowSubmitModal(true)} className="btn-primary text-sm !px-4 !py-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                New Ad
+              </button>
             </div>
           </div>
 
+          {/* ─── Stats Bar (compact) ─── */}
+          {stats && (
+            <div className="flex items-center gap-8 mb-8 px-1">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-display text-surface-900">{stats.totalAds}</span>
+                <span className="text-sm text-surface-500">listings</span>
+              </div>
+              <div className="w-px h-6 bg-surface-300/60" />
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-display text-surface-900">{stats.avgRating || '—'}</span>
+                <span className="text-sm text-surface-500">avg rating</span>
+              </div>
+              <div className="w-px h-6 bg-surface-300/60" />
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-display text-surface-900">{(stats.totalViews || 0).toLocaleString()}</span>
+                <span className="text-sm text-surface-500">views</span>
+              </div>
+            </div>
+          )}
+
+          {/* ─── Category Columns ─── */}
+          <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory scrollbar-none">
+            {CATEGORIES.map((cat) => {
+              const isActive = cat === activeCategory;
+              const isAll = cat === 'All';
+              const tagColors = {
+                Products: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                Services: 'bg-blue-100 text-blue-800 border-blue-200',
+                Events: 'bg-purple-100 text-purple-800 border-purple-200',
+              };
+              return (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryChange(cat)}
+                  className={`snap-start shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl border transition-all duration-200 ${
+                    isActive
+                      ? 'bg-white border-surface-300 shadow-md text-surface-900'
+                      : 'bg-white/60 border-transparent text-surface-500 hover:bg-white/90 hover:border-surface-200'
+                  }`}
+                >
+                  {!isAll && (
+                    <span className={`w-2 h-2 rounded-full ${tagColors[cat]?.split(' ')[0] || 'bg-surface-300'}`} />
+                  )}
+                  <span className="text-sm font-medium">{cat}</span>
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                    isActive ? 'bg-surface-100 text-surface-600' : 'bg-surface-100/60 text-surface-400'
+                  }`}>
+                    {isAll ? totalAds : countByCategory(cat)}
+                  </span>
+                </button>
+              );
+            })}
+
+            {/* Spacer to show scroll hint */}
+            <div className="shrink-0 w-2" />
+          </div>
+
+          {/* ─── Search Bar ─── */}
+          <div className="relative mt-5 mb-6">
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search listings..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white/80 border border-surface-200 rounded-xl text-sm text-surface-900 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-300 transition-all"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => handleSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* ─── Featured Row ─── */}
+          {featured.length > 0 && searchQuery === '' && activeCategory === 'All' && (
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span className="text-sm font-medium text-surface-700">Featured</span>
+              </div>
+              <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory scrollbar-none">
+                {featured.map((ad) => (
+                  <div key={ad.id} className="snap-start shrink-0 w-72" onClick={() => handleAdClick(ad)}>
+                    <AdCard ad={ad} onClick={handleAdClick} index={0} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ─── Ad Grid ─── */}
           {isLoading ? (
-            <div className="card-grid">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
               {[...Array(10)].map((_, i) => (
-                <div key={i} className="glass-card rounded-2xl overflow-hidden">
-                  <div className="h-2 w-full bg-gradient-to-r from-brand-400/30 to-brand-500/30 animate-shimmer" style={{ backgroundSize: '200% 100%', backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)' }} />
-                  <div className="p-4 space-y-2.5">
-                    <div className="h-3 bg-surface-200 rounded w-16 animate-pulse" />
-                    <div className="h-4 bg-surface-200 rounded w-3/4 animate-pulse" />
-                    <div className="h-3 bg-surface-100 rounded w-full animate-pulse" />
-                    <div className="h-3 bg-surface-100 rounded w-1/2 animate-pulse" />
+                <div key={i} className="bg-white rounded-xl border border-surface-200/60 shadow-sm overflow-hidden animate-pulse">
+                  <div className="p-4 space-y-3">
+                    <div className="h-3 bg-surface-100 rounded w-16" />
+                    <div className="h-4 bg-surface-100 rounded w-3/4" />
+                    <div className="h-3 bg-surface-50 rounded w-full" />
+                    <div className="h-3 bg-surface-50 rounded w-1/2" />
+                    <div className="flex justify-between pt-2 border-t border-surface-100">
+                      <div className="h-3 bg-surface-100 rounded w-16" />
+                      <div className="h-3 bg-surface-100 rounded w-12" />
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : ads.length > 0 ? (
-            <div className="card-grid">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
               {ads.map((ad, index) => (
                 <AdCard key={ad.id} ad={ad} onClick={handleAdClick} index={index} />
               ))}
             </div>
           ) : (
             <div className="text-center py-20">
-              <div className="w-16 h-16 rounded-full bg-surface-100 flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-14 h-14 rounded-full bg-white/80 border border-surface-200 flex items-center justify-center mx-auto mb-4 shadow-sm">
+                <svg className="w-6 h-6 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
-              <h3 className="font-display text-xl text-surface-700 mb-2">No ads found</h3>
-              <p className="text-sm text-surface-500">Try adjusting your search or category filter.</p>
+              <h3 className="font-display text-lg text-surface-700 mb-1">No ads found</h3>
+              <p className="text-sm text-surface-500">Try a different search or category.</p>
             </div>
           )}
-        </section>
+        </main>
 
         <Footer />
       </div>
