@@ -258,7 +258,7 @@ export async function createAd(adData) {
     // If no profile exists yet (Clerk webhook hasn't synced),
     // create one automatically so the ad links to a real profile
     if (!profileId) {
-      const { data: newProfile } = await supabaseAdmin
+      const { data: newProfile, error: profileError } = await supabaseAdmin
         .from('profiles')
         .upsert({
           clerk_id: rawClerkId,
@@ -267,7 +267,9 @@ export async function createAd(adData) {
         .select()
         .single();
 
-      if (newProfile?.id) {
+      if (profileError) {
+        console.error('Failed to auto-create profile:', JSON.stringify(profileError));
+      } else if (newProfile?.id) {
         profileId = newProfile.id;
         clearProfileCache();
       }

@@ -30,7 +30,10 @@ export default async function handler(req, res) {
 
       const result = await createAd(adData);
       if (result.error) {
-        return res.status(400).json(result);
+        const message = typeof result.error === 'string'
+          ? result.error
+          : (result.error.message || JSON.stringify(result.error));
+        return res.status(400).json({ error: message });
       }
       return res.status(201).json(result);
     } catch (err) {

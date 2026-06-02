@@ -34,7 +34,11 @@ create policy "Users update own profile"
 
 drop policy if exists "Service role manages profiles" on public.profiles;
 create policy "Service role manages profiles"
-  on public.profiles for all using (auth.role() = 'service_role');
+  on public.profiles for all using (auth.role() = 'service_role') with check (true);
+
+drop policy if exists "Anyone can create profiles" on public.profiles;
+create policy "Anyone can create profiles"
+  on public.profiles for insert with check (true);
 
 -- ============================================
 -- Categories

@@ -150,7 +150,7 @@ export default function SubmitAd() {
       if (!res.ok) {
         const err = await res.json();
         console.error('Submit ad error:', err);
-        alert(err.error || 'Failed to submit ad. Please try again.');
+        alert(typeof err.error === 'string' ? err.error : (err.error?.message || 'Failed to submit ad. Please try again.'));
         return;
       }
 
