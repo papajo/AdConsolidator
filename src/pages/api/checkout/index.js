@@ -9,6 +9,13 @@ const PRICE_MAP = {
   'business': process.env.STRIPE_PRICE_BUSINESS || 'price_business_monthly',
 };
 
+function getAppUrl() {
+  return process.env.NEXT_PUBLIC_APP_URL
+    || (process.env.NEXT_PUBLIC_BASE_URL
+      ? `https://${process.env.NEXT_PUBLIC_BASE_URL.replace(/^https?:\/\//, '')}`
+      : 'http://localhost:3000');
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -21,6 +28,7 @@ export default async function handler(req, res) {
   }
 
   try {
+    const appUrl = getAppUrl();
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -30,8 +38,8 @@ export default async function handler(req, res) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/dashboard?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/pricing?canceled=true`,
+      success_url: `${appUrl}/dashboard?success=true`,
+      cancel_url: `${appUrl}/pricing?canceled=true`,
     });
 
     return res.status(200).json({ url: session.url });

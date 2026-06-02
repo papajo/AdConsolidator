@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { formatDate, getCategoryBadgeClass, formatNumber } from '../lib/utils';
 
+function getCategoryName(ad) {
+  return ad.category_name || ad.category || ad.categories?.name || 'Other';
+}
+
 export default function AdDetail({ ad, reviews, onClose }) {
   const [showContact, setShowContact] = useState(false);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
   const [localReviews, setLocalReviews] = useState(reviews || []);
+  const category = getCategoryName(ad);
 
   const handleSubmitReview = (e) => {
     e.preventDefault();
@@ -32,9 +37,9 @@ export default function AdDetail({ ad, reviews, onClose }) {
       <div className="relative w-full max-w-4xl mx-4 my-8 glass-card rounded-3xl overflow-hidden animate-slide-up shadow-2xl">
         {/* Header strip */}
         <div className={`h-3 w-full ${
-          ad.category === 'Products' ? 'bg-gradient-to-r from-emerald-400 to-teal-500' :
-          ad.category === 'Services' ? 'bg-gradient-to-r from-blue-400 to-indigo-500' :
-          ad.category === 'Events' ? 'bg-gradient-to-r from-purple-400 to-pink-500' :
+          category === 'Products' ? 'bg-gradient-to-r from-emerald-400 to-teal-500' :
+          category === 'Services' ? 'bg-gradient-to-r from-blue-400 to-indigo-500' :
+          category === 'Events' ? 'bg-gradient-to-r from-purple-400 to-pink-500' :
           'bg-gradient-to-r from-surface-300 to-surface-400'
         }`} />
 
@@ -51,7 +56,7 @@ export default function AdDetail({ ad, reviews, onClose }) {
         <div className="p-8">
           {/* Badges */}
           <div className="flex items-center gap-2 mb-4">
-            <span className={`badge ${getCategoryBadgeClass(ad.category)}`}>{ad.category}</span>
+            <span className={`badge ${getCategoryBadgeClass(category)}`}>{category}</span>
             {ad.is_sponsored && <span className="badge badge-sponsored">⭐ Sponsored</span>}
             <span className="text-xs text-surface-400 ml-auto">{formatDate(ad.created_at)}</span>
           </div>

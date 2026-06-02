@@ -25,15 +25,18 @@ export default function Pricing() {
     };
 
     const injectTables = () => {
+      const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PRICING_PUBLISHABLE_KEY || 'pk_test_ukl8beX9GjLAyN4bTUzPztls';
+      const proTableId = process.env.NEXT_PUBLIC_STRIPE_PRICE_TABLE_PRO || 'prctbl_1TdDYcH0yf0ExgHW18Vvr35h';
+      const bizTableId = process.env.NEXT_PUBLIC_STRIPE_PRICE_TABLE_BUSINESS || 'prctbl_1TdDZSH0yf0ExgHWKp6lEZAY';
       container.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div class="bg-surface-50 rounded-3xl p-4">
             <h3 class="font-display text-xl text-surface-900 text-center mb-2">Pro Plan</h3>
-            <stripe-pricing-table pricing-table-id="prctbl_1TdDYcH0yf0ExgHW18Vvr35h" publishable-key="pk_test_ukl8beX9GjLAyN4bTUzPztls"></stripe-pricing-table>
+            <stripe-pricing-table pricing-table-id="${proTableId}" publishable-key="${stripeKey}"></stripe-pricing-table>
           </div>
           <div class="bg-surface-50 rounded-3xl p-4">
             <h3 class="font-display text-xl text-surface-900 text-center mb-2">Business Plan</h3>
-            <stripe-pricing-table pricing-table-id="prctbl_1TdDZSH0yf0ExgHWKp6lEZAY" publishable-key="pk_test_ukl8beX9GjLAyN4bTUzPztls"></stripe-pricing-table>
+            <stripe-pricing-table pricing-table-id="${bizTableId}" publishable-key="${stripeKey}"></stripe-pricing-table>
           </div>
         </div>
         <p class="text-center text-xs text-surface-400 mt-4">

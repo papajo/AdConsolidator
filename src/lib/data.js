@@ -84,13 +84,16 @@ function isSupabaseConfigured() {
 // ============================================
 
 export async function getAds(filters = {}) {
+  // Accept both 'query' and 'search' as the search parameter
+  const search = filters.search || filters.query || '';
+
   if (!isSupabaseConfigured()) {
     let results = [...MOCK_ADS];
     if (filters.category && filters.category !== 'All') {
       results = results.filter(a => a.category_name === filters.category);
     }
-    if (filters.search) {
-      const q = filters.search.toLowerCase();
+    if (search) {
+      const q = search.toLowerCase();
       results = results.filter(a => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q));
     }
     if (filters.sort === 'price_asc') results.sort((a, b) => (a.price || 0) - (b.price || 0));
@@ -123,8 +126,8 @@ export async function getAds(filters = {}) {
       if (catId) query = query.eq('category_id', catId);
     }
   }
-  if (filters.search) {
-    query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+  if (search) {
+    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
   }
   if (filters.sort === 'price_asc') query = query.order('price', { ascending: true });
   else if (filters.sort === 'price_desc') query = query.order('price', { ascending: false });
@@ -265,27 +268,23 @@ export async function createAd(adData) {
 export async function getUserAds(userId) {
   if (!isSupabaseConfigured()) return MOCK_ADS.filter(a => a.user_id === userId);
 
-      // If user has no profile yet, show a message or show ads by looking up profile
-      const profileResult = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .eq('clerk_id', userId)
-        .maybeSingle();
+  // Resolve Clerk ID → Supabase profile UUID
+  const profileResult = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('clerk_id', userId)
+    .maybeSingle();
 
-      let profileId = profileResult.data?.id;
+  const profileId = profileResult.data?.id;
+  if (!profileId) return [];
 
-      let ads = [];
-      if (profileId) {
-        const { data } = await supabaseAdmin
-          .from('ads')
-          .select('*, categories(name, slug)')
-          .eq('user_id', profileId)
-          .order('created_at', { ascending: false });
-        ads = data || [];
-      } else {
-        // No profile yet — show a helpful message
-        ads = [];
-      }
+  const { data } = await supabaseAdmin
+    .from('ads')
+    .select('*, categories(name, slug)')
+    .eq('user_id', profileId)
+    .order('created_at', { ascending: false });
+
+  return data || [];
 }
 
 // ============================================

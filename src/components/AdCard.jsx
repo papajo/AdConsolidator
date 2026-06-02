@@ -1,7 +1,12 @@
 import { formatDate, getCategoryBadgeClass, formatNumber } from '../lib/utils';
 
+function getCategoryName(ad) {
+  return ad.category_name || ad.category || ad.categories?.name || 'Other';
+}
+
 export default function AdCard({ ad, onClick, index }) {
   const delay = (index % 6) * 0.08;
+  const category = getCategoryName(ad);
 
   return (
     <article
@@ -24,9 +29,9 @@ export default function AdCard({ ad, onClick, index }) {
       {/* Visual header strip (fallback when no image) */}
       {!ad.images?.length && (
         <div className={`h-2 w-full ${
-          ad.category === 'Products' ? 'bg-gradient-to-r from-emerald-400 to-teal-500' :
-          ad.category === 'Services' ? 'bg-gradient-to-r from-blue-400 to-indigo-500' :
-          ad.category === 'Events' ? 'bg-gradient-to-r from-purple-400 to-pink-500' :
+          category === 'Products' ? 'bg-gradient-to-r from-emerald-400 to-teal-500' :
+          category === 'Services' ? 'bg-gradient-to-r from-blue-400 to-indigo-500' :
+          category === 'Events' ? 'bg-gradient-to-r from-purple-400 to-pink-500' :
           'bg-gradient-to-r from-surface-300 to-surface-400'
         }`} />
       )}
@@ -35,8 +40,8 @@ export default function AdCard({ ad, onClick, index }) {
         {/* Top meta */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className={`badge ${getCategoryBadgeClass(ad.category)}`}>
-              {ad.category}
+            <span className={`badge ${getCategoryBadgeClass(category)}`}>
+              {category}
             </span>
             {ad.is_sponsored && (
               <span className="badge badge-sponsored">
@@ -77,7 +82,7 @@ export default function AdCard({ ad, onClick, index }) {
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
               <span className="text-xs font-semibold text-surface-700">{ad.rating}</span>
-              <span className="text-xs text-surface-400">({ad.review_count})</span>
+              <span className="text-xs text-surface-400">({ad.review_count || 0})</span>
             </div>
 
             {/* Views */}

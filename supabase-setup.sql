@@ -16,6 +16,12 @@ create table if not exists public.profiles (
   updated_at timestamptz default now()
 );
 
+-- Add Stripe subscription columns (migration-safe)
+alter table public.profiles add column if not exists plan text default 'starter';
+alter table public.profiles add column if not exists stripe_customer_id text;
+alter table public.profiles add column if not exists stripe_subscription_id text;
+alter table public.profiles add column if not exists subscription_status text;
+
 alter table public.profiles enable row level security;
 
 drop policy if exists "Users view own profile" on public.profiles;
@@ -24,7 +30,7 @@ create policy "Users view own profile"
 
 drop policy if exists "Users update own profile" on public.profiles;
 create policy "Users update own profile"
-  on public.profiles for update using (true);
+  on public.profiles for update using (auth.uid() = id);
 
 drop policy if exists "Service role manages profiles" on public.profiles;
 create policy "Service role manages profiles"
@@ -81,15 +87,8 @@ create table if not exists public.ads (
 -- Make user_id nullable until profile exists
 alter table public.ads alter column user_id drop not null;
 
+-- Migration-safe: add any columns that may not exist yet
 alter table public.ads add column if not exists image_url text;
-alter table public.ads add column if not exists image_urls text[];
-alter table public.ads add column if not exists tags text[];
-alter table public.ads add column if not exists location text;
-alter table public.ads add column if not exists views integer default 0;
-alter table public.ads add column if not exists is_sponsored boolean default false;
-alter table public.ads add column if not exists contact_email text;
-alter table public.ads add column if not exists contact_phone text;
-alter table public.ads add column if not exists contact_website text;
 alter table public.ads add column if not exists image_urls text[];
 alter table public.ads add column if not exists tags text[];
 alter table public.ads add column if not exists location text;
@@ -111,7 +110,7 @@ create policy "Anyone can insert ads"
 
 drop policy if exists "Users manage own ads" on public.ads;
 create policy "Users manage own ads"
-  on public.ads for all using (true);
+  on public.ads for all using (auth.uid() = user_id);
 
 -- ============================================
 -- Contact messages
@@ -154,11 +153,11 @@ create policy "Anyone view reviews"
 
 drop policy if exists "Users create reviews" on public.reviews;
 create policy "Users create reviews"
-  on public.reviews for insert with check (true);
+  on public.reviews for insert with check (auth.uid() = user_id);
 
 drop policy if exists "Users update own reviews" on public.reviews;
 create policy "Users update own reviews"
-  on public.reviews for update using (true);
+  on public.reviews for update using (auth.uid() = user_id);
 
 -- ============================================
 -- Auto-update timestamps
@@ -176,6 +175,45 @@ create trigger ads_updated_at before update on public.ads for each row execute f
 
 drop trigger if exists reviews_updated_at on public.reviews;
 create trigger reviews_updated_at before update on public.reviews for each row execute function public.handle_updated_at();
+
+-- ============================================
+-- Saved searches
+-- ============================================
+create table if not exists public.saved_searches (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  query text,
+  category_id int,
+  filters jsonb default '{}',
+  created_at timestamptz default now()
+);
+
+alter table public.saved_searches enable row level security;
+
+drop policy if exists "Users manage own saved searches" on public.saved_searches;
+create policy "Users manage own saved searches"
+  on public.saved_searches for all using (auth.uid() = user_id);
+
+-- ============================================
+-- Alerts / notifications
+-- ============================================
+create table if not exists public.alerts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  ad_id uuid references public.ads(id) on delete cascade,
+  type text check (type in ('new_ad', 'price_drop', 'reply', 'subscription')),
+  message text,
+  read boolean default false,
+  created_at timestamptz default now()
+);
+
+alter table public.alerts enable row level security;
+
+create index if not exists idx_alerts_user on public.alerts(user_id, read);
+
+drop policy if exists "Users view own alerts" on public.alerts;
+create policy "Users view own alerts"
+  on public.alerts for select using (auth.uid() = user_id);
 
 -- ============================================
 -- Storage bucket for ad images

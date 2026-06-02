@@ -1,0 +1,302 @@
+
+=== DIRECTORY TREE (max depth 3, source files only) ===
+.env.example
+.env.local
+.gitignore
+README.md
+docs
+docs/codebase
+docs/codebase/.codebase-scan.txt
+info.md
+jsconfig.json
+next.config.js
+package-lock.json
+package.json
+postcss.config.js
+setup.sh
+src
+src/components
+src/components/AdCard.jsx
+src/components/AdDetail.jsx
+src/components/Footer.jsx
+src/components/Header.jsx
+src/components/NotificationPanel.jsx
+src/components/StatsBar.jsx
+src/components/SubmitAdModal.jsx
+src/lib
+src/lib/data.js
+src/lib/supabase.js
+src/lib/utils.js
+src/middleware.js
+src/pages
+src/pages/_app.js
+src/pages/_document.js
+src/pages/about.js
+src/pages/api
+src/pages/api/ads
+src/pages/api/ads.js
+src/pages/api/checkout
+src/pages/api/contact.js
+src/pages/api/stats.js
+src/pages/api/upload
+src/pages/api/webhooks
+src/pages/contact.js
+src/pages/dashboard
+src/pages/dashboard/index.js
+src/pages/index.js
+src/pages/legal
+src/pages/legal/cookies.js
+src/pages/legal/dmca.js
+src/pages/legal/privacy.js
+src/pages/legal/terms.js
+src/pages/me
+src/pages/me/ads.js
+src/pages/pricing.js
+src/pages/sign-in
+src/pages/sign-in/[[...sign-in]].js
+src/pages/sign-up
+src/pages/sign-up/[[...sign-up]].js
+src/pages/submit-ad
+src/pages/submit-ad/index.js
+src/styles
+src/styles/globals.css
+supabase-schema.sql
+supabase-setup.sql
+tailwind.config.js
+vercel.json
+
+=== STACK DETECTION (manifest files) ===
+
+--- package-lock.json ---
+{
+  "name": "xyzt-ad-consolidator",
+  "version": "1.0.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "xyzt-ad-consolidator",
+      "version": "1.0.0",
+      "dependencies": {
+        "@clerk/nextjs": "^5.0.0",
+        "@supabase/supabase-js": "^2.38.0",
+        "lucide-react": "^0.400.0",
+        "next": "^14.2.0",
+        "react": "^18.3.0",
+        "react-dom": "^18.3.0",
+        "stripe": "^14.0.0"
+      },
+      "devDependencies": {
+        "autoprefixer": "^10.4.0",
+        "postcss": "^8.4.0",
+        "tailwindcss": "^3.4.0"
+      }
+    },
+    "node_modules/@alloc/quick-lru": {
+      "version": "5.2.0",
+      "resolved": "https://registry.npmjs.org/@alloc/quick-lru/-/quick-lru-5.2.0.tgz",
+      "integrity": "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==",
+      "dev": true,
+      "license": "MIT",
+      "engines": {
+        "node": ">=10"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/sindresorhus"
+      }
+    },
+    "node_modules/@clerk/backend": {
+      "version": "1.14.1",
+      "resolved": "https://registry.npmjs.org/@clerk/backend/-/backend-1.14.1.tgz",
+      "integrity": "sha512-YlKMpiVo4UITw3sgA+9QrAFRILVOz5hgB1Zw180Y2LEZ5a+MdpX668vJKGh7riSweMN7JQvU2jlsKGRO+1bXDw==",
+      "license": "MIT",
+      "dependencies": {
+        "@clerk/shared": "2.9.2",
+        "@clerk/types": "4.26.0",
+        "cookie": "0.7.0",
+        "snakecase-keys": "5.4.4",
+        "tslib": "2.4.1"
+      },
+      "engines": {
+        "node": ">=18.17.0"
+      }
+    },
+    "node_modules/@clerk/backend/node_modules/tslib": {
+      "version": "2.4.1",
+      "resolved": "https://registry.npmjs.org/tslib/-/tslib-2.4.1.tgz",
+      "integrity": "sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==",
+      "license": "0BSD"
+    },
+    "node_modules/@clerk/clerk-react": {
+      "version": "5.12.0",
+      "resolved": "https://registry.npmjs.org/@clerk/clerk-react/-/clerk-react-5.12.0.tgz",
+      "integrity": "sha512-3Lr2QazCm5R6ZLbu7wM+d5YwCElrAoX00OBWcKqjPYaWDJCCmEYN6LJbLzOTYQ8QT1J1ZIed85/lKa+q2aD1aA==",
+      "deprecated": "This package is no longer supported. Please use @clerk/react instead. See the upgrade guide for more info: https://clerk.com/docs/guides/development/upgrading/upgrade-guides/core-3",
+      "license": "MIT",
+      "dependencies": {
+        "@clerk/shared": "2.9.2",
+        "@clerk/types": "4.26.0",
+        "tslib": "2.4.1"
+      },
+      "engines": {
+        "node": ">=18.17.0"
+      },
+      "peerDependencies": {
+        "react": ">=18 || >=19.0.0-beta",
+        "react-dom": ">=18 || >=19.0.0-beta"
+      }
+    },
+    "node_modules/@clerk/clerk-react/node_modules/tslib": {
+      "version": "2.4.1",
+
+[TRUNCATED] Showing first 80 of 2202 lines.
+--- package.json ---
+{
+  "name": "xyzt-ad-consolidator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "lucide-react": "^0.400.0",
+    "@clerk/nextjs": "^5.0.0",
+    "stripe": "^14.0.0",
+    "@supabase/supabase-js": "^2.38.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0"
+  }
+}
+
+
+=== ENTRY POINTS ===
+No common entry points found. Check 'main' or 'scripts.start' in manifest files above.
+
+=== LINTING AND FORMATTING CONFIG ===
+No linting or formatting config files found in project root.
+
+=== ENVIRONMENT VARIABLE TEMPLATES ===
+--- .env.example ---
+# Clerk Auth
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
+CLERK_SECRET_KEY=sk_test_xxxxx
+
+# Stripe
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+STRIPE_SECRET_KEY=sk_test_xxxxx
+STRIPE_PRICE_PRO=price_xxxxx
+STRIPE_PRICE_BUSINESS=price_xxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxx
+
+# Supabase (for database)
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxxxx
+SUPABASE_SERVICE_ROLE_KEY=eyJxxxxx
+
+# Resend (for emails)
+RESEND_API_KEY=re_xxxxx
+
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Cloudinary (image uploads)
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+CLOUDINARY_UPLOAD_PRESET=xyzt_upload
+CLERK_WEBHOOK_SECRET=whsec_xxxxx
+
+
+=== TODO / FIXME / HACK (production code only, test dirs excluded) ===
+src/pages/api/webhooks/stripe.js:37: // TODO: When Supabase is connected, update user subscription in DB
+
+=== GIT RECENT COMMITS (last 20) ===
+53371c0 fix: prioritize Supabase Storage over Cloudinary, clean filename
+9e625a8 fix: use .maybeSingle() for read queries to prevent 406 errors
+987a359 migration: ALTER TABLE for existing Supabase schema
+b6d1792 fix: upload filename no slashes, dashboard handles missing profile
+071dfc8 fix: increase body parser limit + memory for upload endpoint
+7f5fab3 fix: nullable user_id, better upload error messages
+51dfaf9 fix: surface real error message from Supabase on ad insert failure
+907af24 fix: add ALTER TABLE for missing columns on existing ads table
+b8720e6 fix: SubmitAdModal now writes to Supabase, shows loading/success/error states
+ffd4d5c fix: compress images pre-upload, fix 400/413 errors, add POST /api/ads
+b57ed1a fix: use valid placeholder Supabase URL to prevent build crash
+a0a5007 fix: clerk-uuid mismatch, add /me/ads dashboard, relax RLS, better error logs
+3d1bc45 add forgot password hint to sign-in page
+ec9313b fix: make supabase-setup.sql idempotent (safe to re-run)
+a999930 fix: upload fallback, resilient categories, contact via Resend/Supabase, longer API timeouts
+5041246 fix: remove server-only Clerk import from shared supabase client
+9987614 fix: import crypto at top level in clerk webhook
+ea9df4b feat: add Clerk webhook for Supabase user sync
+448e7b0 upd: vercel.json per vercel ai-asst
+056dd74 upd: .env
+
+=== HIGH-CHURN FILES (last 90 days, top 20) ===
+   8 src/lib/data.js
+   7 supabase-setup.sql
+   7 src/pages/pricing.js
+   6 src/pages/api/upload/index.js
+   6 src/components/Header.jsx
+   6 package.json
+   5 vercel.json
+   5 src/lib/supabase.js
+   5 src/pages/submit-ad/index.js
+   4 src/components/Footer.jsx
+   3 src/pages/api/webhooks/clerk.js
+   3 .env.example
+   3 .gitignore
+   3 src/pages/_app.js
+   3 src/pages/api/ads.js
+   2 src/pages/api/ads/index.js
+   2 src/components/SubmitAdModal.jsx
+   2 src/pages/dashboard/index.js
+   2 src/pages/sign-in/[[...sign-in]].js
+   2 src/pages/api/contact.js
+
+=== MONOREPO SIGNALS ===
+No monorepo signals detected.
+
+=== CODE METRICS ===
+Total files scanned: 51
+Total lines of code: 5954
+
+Files by language:
+  JavaScript: 31
+  Other: 13
+  JavaScript/React: 7
+
+Top 10 largest files:
+package-lock.json: 74.4KB
+setup.sh: 39.9KB
+src/pages/submit-ad/index.js: 19.2KB
+src/pages/dashboard/index.js: 18.2KB
+src/components/AdDetail.jsx: 13.6KB
+src/lib/data.js: 12.8KB
+src/components/SubmitAdModal.jsx: 10.3KB
+src/pages/about.js: 8.9KB
+src/pages/contact.js: 8.6KB
+src/pages/index.js: 8.2KB
+
+=== CI/CD PIPELINES ===
+No CI/CD pipelines detected.
+
+=== CONTAINERS & ORCHESTRATION ===
+No containerization configs detected.
+
+=== SECURITY & COMPLIANCE ===
+No security configs detected.
+
+=== PERFORMANCE & TESTING ===
+No performance testing configs detected.
+
+=== SCAN COMPLETE ===

@@ -1,6 +1,11 @@
 -- ============================================
 -- XYZT Ad Consolidator — Supabase Schema
 -- ============================================
+-- ⚠️  NOTE: This schema references auth.users (Supabase Auth).
+--    The app now uses Clerk for authentication.
+--    Use supabase-setup.sql instead, which uses a custom `clerk_id` column.
+--    This file is kept for reference only.
+-- ============================================
 
 -- Profiles table (linked to Clerk users)
 create table if not exists public.profiles (

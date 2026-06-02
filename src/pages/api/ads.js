@@ -1,4 +1,4 @@
-import { getAds, createAd } from '../../lib/data';
+import { getAds, getFeaturedAds, createAd } from '../../lib/data';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
