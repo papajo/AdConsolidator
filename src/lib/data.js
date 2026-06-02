@@ -276,10 +276,14 @@ export async function createAd(adData) {
     }
   }
 
+  // Strip fields that may not exist in the database schema
+  // (only pass columns defined in both supabase-*.sql schemas)
+  const { category, category_name, contactName, ...safeData } = adData;
+
   const { data, error } = await supabaseAdmin
     .from('ads')
     .insert({
-      ...adData,
+      ...safeData,
       user_id: profileId || null,
     })
     .select()

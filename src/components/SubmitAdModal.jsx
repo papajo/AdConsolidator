@@ -35,7 +35,6 @@ export default function SubmitAdModal({ onClose, onSubmit }) {
       const adData = {
         title: form.title,
         category_id: categoryMap[form.category],
-        category: form.category,
         location: form.location,
         description: form.description,
         contact_email: form.contact_email,
